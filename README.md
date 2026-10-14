@@ -96,3 +96,9 @@ All four supplies were added from 0 to 99 and individually verified in the live 
 [StatsBoost CT](FF6_PR_StatsBoost_20265119.CT) increases Strength, Speed, Stamina, and Magic for the current permanent party. Enter an amount from 1 to 30 (default +10), capped at 128 natural stats. It is separate from Level99 and preserves level and EXP. Each activation adds another boost; disabling does not undo it.
 
 The earlier read-only preflight resolved the four stat fields for the current two characters. This adjustable table has structural checks only and has **not been applied or tested for writes, combat, or save/reload persistence**, at the user's request. See [Chinese usage notes](StatsBoost-README.txt).
+
+## Terra: Ultima and Quick
+
+[Separate Terra CT](FF6_PR_TerraUltimaQuick_20265119.CT) teaches only Ultima and Quick to the permanent Terra role. Already mastered spells are skipped; partial learning is completed through the game's LearningAbility method. It does not grant magicite or change story progress.
+
+Applied to the live game on 2026-10-14: Ultima remained at 100%; Quick changed from 0% to 100%. Unrelated ability records, commands, identities, jobs, EXP, Gil, levels, four stats, and HP/MP were checked unchanged. The learning script matches the delivered CT; combat and save/reload persistence are untested, and menu confirmation is pending. [Chinese usage notes](TerraUltimaQuick-README.txt).
