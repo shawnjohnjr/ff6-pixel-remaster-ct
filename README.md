@@ -90,3 +90,9 @@ Lists: [Rages](AllRages-list.txt), [Lores](AllLores-list.txt).
 [Supplies CT](FF6_PR_Supplies_20265119.CT) contains four independent entries: X-Ether, Megalixir, Teleport Stone, and Magicite Shard. Each prompts for a target total from 1 to 99 (default 99). Existing higher quantities are preserved. Uncheck and recheck an entry to replenish again.
 
 All four supplies were added from 0 to 99 and individually verified in the live game; each operation preserved the other three supplies and Gil. The actual CT menu, target quantity prompt, default value, and cancellation were also checked. Item effects and save/reload persistence were not tested. See [usage notes](Supplies-README.txt).
+
+## Adjustable stat boost (not applied in game)
+
+[StatsBoost CT](FF6_PR_StatsBoost_20265119.CT) increases Strength, Speed, Stamina, and Magic for the current permanent party. Enter an amount from 1 to 30 (default +10), capped at 128 natural stats. It is separate from Level99 and preserves level and EXP. Each activation adds another boost; disabling does not undo it.
+
+The earlier read-only preflight resolved the four stat fields for the current two characters. This adjustable table has structural checks only and has **not been applied or tested for writes, combat, or save/reload persistence**, at the user's request. See [Chinese usage notes](StatsBoost-README.txt).

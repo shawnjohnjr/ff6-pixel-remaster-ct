@@ -1,0 +1,163 @@
+<?xml version='1.0' encoding='utf-8'?>
+<CheatTable CheatEngineTableVersion="45">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"目前隊伍：四項能力小幅增加（可選 1–30，預設 +10）"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+local FF6_STATS_READ_ONLY=false
+
+assert(getOpenedProcessID()~=0,'Attach to FINAL FANTASY VI.exe')
+local base=getAddressSafe('GameAssembly.dll');assert(base,'GameAssembly.dll missing')
+local pe=base+readInteger(base+60)
+assert(readInteger(pe+8)==1745316249 and readInteger(pe+80)==42369024,'Requires FF6 PR Steam build 20265119')
+assert(LaunchMonoDataCollector(),'Mono collector unavailable')
+local classes,fields,methods={},{},{}
+local function cls(ns,n)
+ local key=ns..'.'..n
+ if not classes[key] then local c=mono_findClass(ns,n);assert(c and c~=0,'Class missing: '..key);classes[key]=c end
+ return classes[key]
+end
+local function fld(c,n,t)
+ if not fields[c] then fields[c]=assert(mono_class_enumFields(c,true),'Field lookup failed') end
+ for _,v in ipairs(fields[c]) do if v.name==n then assert(not t or v.typename==t,'Field type mismatch: '..n);return v end end
+ error('Missing field '..n)
+end
+local function meth(c,n,sig)
+ local current=c
+ while current and current~=0 do
+  if not methods[current] then methods[current]=assert(mono_class_enumMethods(current),'Method lookup failed') end
+  for _,m in ipairs(methods[current]) do if m.name==n and mono_method_getSignature(m.method)==sig then return m.method end end
+  current=mono_class_getParent(current)
+ end
+ error('Missing method '..n..' ('..sig..')')
+end
+local function call(m,o,args)
+ local r,e=mono_invoke_method(0,m,o or 0,args or {});assert(e==nil,tostring(e));return r
+end
+local function ptr(a,c)
+ local p=readPointer(a);assert(p and p&gt;65536,'Invalid pointer')
+ if c then assert(readPointer(p)==c,'Object type mismatch') end
+ return p
+end
+local function list(o,max)
+ local n=readInteger(o+0x18);local a=ptr(o+0x10)
+ assert(n and n&gt;=0 and n&lt;=max,'Invalid list count')
+ local capacity=readInteger(a+0x18);assert(capacity and capacity&gt;=n and capacity&lt;=512,'Invalid capacity')
+ local r={};for i=0,n-1 do r[#r+1]=ptr(a+0x20+i*8) end;return r
+end
+local um=cls('Last.Management','UserDataManager')
+local u=mono_class_getStaticFieldValue(um,fld(um,'instance').field)
+assert(type(u)=='number' and u&gt;65536 and readPointer(u)==um,'Load a save first')
+local us=cls('Last.Data.User','UserSaveData')
+local save=ptr(u+fld(um,'saveData').offset,us)
+local cc=cls('Last.Data.User','OwnedCharacterData')
+local cs=cls('Last.Data.User','OwnedCharacterSaveData')
+local pc=cls('Last.Data','PlayerCharacterParameter')
+local chars={}
+for _,ch in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),16)) do
+ assert(readPointer(ch)==cc,'Unexpected character')
+ local s=ptr(ch+fld(cc,'saveData').offset,cs)
+ local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+ assert(id and id&gt;=1 and id&lt;=16 and not chars[id],'Invalid character ID')
+ chars[id]={object=ch,save=s,id=id}
+end
+local corps=cls('Last.Data.User','Corps');local corpsSave=cls('Last.Data.User','CorpsSaveData')
+local party={};local seen={}
+for _,o in ipairs(list(ptr(u+fld(um,'&lt;corpsList&gt;k__BackingField').offset),4)) do
+ assert(readPointer(o)==corps,'Unexpected party slot')
+ local s=ptr(o+fld(corps,'saveData').offset,corpsSave)
+ local id=readInteger(s+fld(corpsSave,'characterId','System.Int32').offset)
+ assert(id and id&gt;=0 and id&lt;=16,'Invalid party ID')
+ if id~=0 then assert(chars[id] and not seen[id],'Invalid or repeated party character');seen[id]=true;party[#party+1]=chars[id] end
+end
+assert(#party&gt;0,'Load a save and stop on the map')
+
+
+local raw=FF6_STATS_AMOUNT
+if raw==nil then
+ raw=inputQuery('FF6 - Stat boost','Increase each stat by how much? (1-30, default 10)','10')
+ if raw==nil then return end
+end
+local amount=tonumber(raw)
+assert(amount and amount==math.floor(amount) and amount&gt;=1 and amount&lt;=30,'Enter a whole number from 1 to 30')
+local psc=cls('Last.Data.User','PlayerCharacterParameterSaveData')
+local stats={
+ {name='Strength',base='&lt;BasePower&gt;k__BackingField',bonus='addtionalPower',natural='NaturalPower',confirmed='ConfirmedPower'},
+ {name='Speed',base='&lt;BaseAgility&gt;k__BackingField',bonus='addtionalAgility',natural='NaturalAgility',confirmed='ConfirmedAgility'},
+ {name='Stamina',base='&lt;BaseVitality&gt;k__BackingField',bonus='addtionalVitality',natural='NaturalVitality',confirmed='ConfirmedVitality'},
+ {name='Magic',base='&lt;BaseMagic&gt;k__BackingField',bonus='addtionalMagic',natural='NaturalMagic',confirmed='ConfirmedMagic'}
+}
+local level=meth(pc,'ConfirmedLevel','')
+local update=meth(cc,'UpdateParameter','')
+for _,s in ipairs(stats) do
+ s.baseOffset=fld(pc,s.base,'System.Int32').offset
+ s.bonusOffset=fld(psc,s.bonus,'System.Int32').offset
+ s.naturalMethod=meth(pc,s.natural,'')
+ s.confirmedMethod=meth(pc,s.confirmed,'')
+end
+local members={};local plans={}
+for _,ch in ipairs(party) do
+ local status=readInteger(ch.save+fld(cs,'characterStatusId','System.Int32').offset)
+ local job=readInteger(ch.save+fld(cs,'jobId','System.Int32').offset)
+ assert(status and status&gt;=1 and status&lt;=14 and job and job&gt;=1 and job&lt;=14,'Only permanent party characters are supported')
+ local p=ptr(ch.object+fld(cc,'parameter').offset,pc)
+ local ps=ptr(p+fld(pc,'saveData').offset,psc)
+ local xp=readInteger(ch.save+fld(cs,'currentExp','System.Int32').offset)
+ local lv=call(level,p);assert(type(lv)=='number' and lv&gt;=1 and lv&lt;=99,'Invalid level')
+ local member={object=ch.object,save=ch.save,id=ch.id,parameter=p,parameterSave=ps,level=lv,xp=xp,status=status,job=job}
+ members[#members+1]=member
+ for _,s in ipairs(stats) do
+  local b=readInteger(p+s.baseOffset);local a=readInteger(ps+s.bonusOffset)
+  local natural=call(s.naturalMethod,p);local confirmed=call(s.confirmedMethod,p)
+  assert(b and b&gt;=0 and b&lt;=128 and a and a&gt;=0 and a&lt;=128,'Unexpected base stat or permanent bonus')
+  assert(type(natural)=='number' and natural&gt;=0 and natural&lt;=128 and type(confirmed)=='number' and confirmed&gt;=0 and confirmed&lt;=128,'Unexpected stat calculation')
+  assert(natural==math.min(128,b+a),'Unexpected natural stat calculation')
+  local target=math.max(a,math.min(a+amount,128-b))
+  plans[#plans+1]={member=member,stat=s,address=ps+s.bonusOffset,before=a,target=target,expected=math.min(128,b+target)}
+  print('STAT PLAN',ch.id,s.name,'base',b,'bonus',a,'-&gt;',target,'natural',natural,'confirmed',confirmed)
+ end
+end
+assert(#members&gt;0 and #plans==#members*4,'No valid party members')
+if FF6_STATS_READ_ONLY then
+ print('STATS PREFLIGHT',#members,'characters',#plans,'fields')
+ return
+end
+for _,p in ipairs(plans) do assert(readInteger(p.address)==p.before,'Stats changed; stop on the map and retry') end
+local changed={}
+local ok,err=pcall(function()
+ for _,p in ipairs(plans) do
+  if p.before~=p.target then
+   assert(writeInteger(p.address,p.target),'Stat bonus write failed');changed[#changed+1]=p
+  end
+ end
+ for _,m in ipairs(members) do call(update,m.object) end
+ for _,p in ipairs(plans) do
+  assert(readInteger(p.address)==p.target,'Permanent bonus verification failed')
+  assert(call(p.stat.naturalMethod,p.member.parameter)==p.expected,'Natural stat verification failed: '..p.stat.name)
+  print('STAT VERIFIED',p.member.id,p.stat.name,p.expected,'bonus',p.target)
+ end
+ for _,m in ipairs(members) do
+  assert(call(level,m.parameter)==m.level,'Level changed unexpectedly')
+  assert(readInteger(m.save+fld(cs,'currentExp').offset)==m.xp,'EXP changed unexpectedly')
+  assert(readInteger(m.save+fld(cs,'characterStatusId').offset)==m.status and readInteger(m.save+fld(cs,'jobId').offset)==m.job,'Character identity or job changed')
+ end
+end)
+if not ok then
+ for _,p in ipairs(changed) do writeInteger(p.address,p.before) end
+ for _,m in ipairs(members) do pcall(call,update,m.object) end
+ error(err)
+end
+print('STATS BOOST VERIFIED',#members,'characters; level, EXP, identity and jobs preserved')
+if not FF6_STATS_SILENT then showMessage('Four stats increased by up to '..amount..' (cap 128). Level and EXP preserved. Reopen the status menu. Unchecking does not undo; enabling again adds another boost.') end
+
+{$asm}
+[DISABLE]
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols />
+</CheatTable>
