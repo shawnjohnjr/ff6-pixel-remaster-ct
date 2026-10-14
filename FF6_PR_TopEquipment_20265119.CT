@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='utf-8'?>
+<CheatTable CheatEngineTableVersion="45">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"頂級裝備包：武器補至8件、防具飾品補至4件（地圖上執行一次）"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+local FF6_READ_ONLY=false
+
+assert(getOpenedProcessID()~=0,'Attach to FINAL FANTASY VI.exe')
+local base=getAddressSafe('GameAssembly.dll');assert(base,'GameAssembly.dll missing')
+local pe=base+readInteger(base+60)
+assert(readInteger(pe+8)==1745316249 and readInteger(pe+80)==42369024,'Requires FF6 PR Steam build 20265119')
+assert(LaunchMonoDataCollector(),'Mono collector unavailable')
+local classes,fields,methods={},{},{}
+local function cls(ns,n)
+ local key=ns..'.'..n
+ if not classes[key] then local c=mono_findClass(ns,n);assert(c and c~=0,'Class missing: '..key);classes[key]=c end
+ return classes[key]
+end
+local function fld(c,n,t)
+ if not fields[c] then fields[c]=assert(mono_class_enumFields(c,true),'Field lookup failed') end
+ for _,v in ipairs(fields[c]) do if v.name==n then assert(not t or v.typename==t,'Field type mismatch: '..n);return v end end
+ error('Missing field '..n)
+end
+local function meth(c,n,sig)
+ local current=c
+ while current and current~=0 do
+  if not methods[current] then methods[current]=assert(mono_class_enumMethods(current),'Method lookup failed') end
+  for _,m in ipairs(methods[current]) do if m.name==n and mono_method_getSignature(m.method)==sig then return m.method end end
+  current=mono_class_getParent(current)
+ end
+ error('Missing method '..n..' ('..sig..')')
+end
+local function call(m,o,args)
+ local r,e=mono_invoke_method(0,m,o or 0,args or {});assert(e==nil,tostring(e));return r
+end
+local function ptr(a,c)
+ local p=readPointer(a);assert(p and p&gt;65536,'Invalid pointer')
+ if c then assert(readPointer(p)==c,'Object type mismatch') end
+ return p
+end
+local function list(o,max)
+ local n=readInteger(o+0x18);local a=ptr(o+0x10)
+ assert(n and n&gt;=0 and n&lt;=max,'Invalid list count')
+ local capacity=readInteger(a+0x18);assert(capacity and capacity&gt;=n and capacity&lt;=512,'Invalid capacity')
+ local r={};for i=0,n-1 do r[#r+1]=ptr(a+0x20+i*8) end;return r
+end
+local um=cls('Last.Management','UserDataManager')
+local u=mono_class_getStaticFieldValue(um,fld(um,'instance').field)
+assert(type(u)=='number' and u&gt;65536 and readPointer(u)==um,'Load a save first')
+local us=cls('Last.Data.User','UserSaveData')
+local save=ptr(u+fld(um,'saveData').offset,us)
+local cc=cls('Last.Data.User','OwnedCharacterData')
+local cs=cls('Last.Data.User','OwnedCharacterSaveData')
+local pc=cls('Last.Data','PlayerCharacterParameter')
+local chars={}
+for _,ch in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),16)) do
+ assert(readPointer(ch)==cc,'Unexpected character')
+ local s=ptr(ch+fld(cc,'saveData').offset,cs)
+ local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+ assert(id and id&gt;=1 and id&lt;=16 and not chars[id],'Invalid character ID')
+ chars[id]={object=ch,save=s,id=id}
+end
+local corps=cls('Last.Data.User','Corps');local corpsSave=cls('Last.Data.User','CorpsSaveData')
+local party={};local seen={}
+for _,o in ipairs(list(ptr(u+fld(um,'&lt;corpsList&gt;k__BackingField').offset),4)) do
+ assert(readPointer(o)==corps,'Unexpected party slot')
+ local s=ptr(o+fld(corps,'saveData').offset,corpsSave)
+ local id=readInteger(s+fld(corpsSave,'characterId','System.Int32').offset)
+ assert(id and id&gt;=0 and id&lt;=16,'Invalid party ID')
+ if id~=0 then assert(chars[id] and not seen[id],'Invalid or repeated party character');seen[id]=true;party[#party+1]=chars[id] end
+end
+assert(#party&gt;0,'Load a save and stop on the map')
+local items={
+{96,"左手劍",8},
+{99,"暗殺短劍",8},
+{103,"勇士匕首",8},
+{118,"石中劍",8},
+{119,"斬鐵劍",8},
+{120,"攜光之刃",8},
+{121,"諸神黃昏",8},
+{122,"究極武器",8},
+{127,"神聖槍",8},
+{129,"光輝槍",8},
+{134,"佐助之刀",8},
+{135,"一擊之刃",8},
+{136,"定影",8},
+{142,"正宗",8},
+{143,"天叢雲劍",8},
+{144,"陸奧守",8},
+{154,"巫師棒",8},
+{158,"彩虹畫筆",8},
+{170,"翼刃",8},
+{176,"千王骰",8},
+{183,"虎牙",8},
+{205,"聖盾",4},
+{207,"烈焰盾",4},
+{208,"寒冰盾",4},
+{209,"雷神盾",4},
+{211,"源氏之盾",4},
+{214,"英雄之盾",4},
+{215,"原力之盾",4},
+{223,"睡神王冠",4},
+{231,"深紅帽子",4},
+{232,"神秘面紗",4},
+{236,"黑頭巾",4},
+{238,"誓言面紗",4},
+{239,"貓耳兜帽",4},
+{240,"源氏之盔",4},
+{254,"幻影背心",4},
+{259,"火紅夾克",4},
+{260,"原力鎧",4},
+{265,"公主禮服",4},
+{266,"源氏之鎧",4},
+{268,"戰女神胸衣",4},
+{273,"凶惡巨獸套裝",4},
+{274,"雪絨圍巾",4},
+{285,"赫耳墨斯之靴",4},
+{290,"龍騎士之靴",4},
+{294,"耳環",4},
+{299,"護身手鐲",4},
+{300,"勇者指環",4},
+{301,"緞帶",4},
+{302,"肌力腰帶",4},
+{304,"黃金髮飾",4},
+{305,"三星項環",4},
+{308,"源氏之護手",4},
+{310,"秘傳之證",4},
+{312,"黑帶",4},
+{315,"薩瑪莎靈珠",4},
+{316,"飛龍角",4},
+{317,"勳章",4},
+{319,"祈安珠",4},
+{321,"莫魯魯護身符",4},
+{323,"奇跡之靴",4},
+{327,"成長蛋",4},
+}
+
+local itemClass=cls('Last.Data.User','OwnedItemData')
+local search=meth(um,'SearchOwnedItem','System.Int32')
+local getCount=meth(itemClass,'get_Count','')
+local ic=cls('Last.Management','OwnedItemClient')
+local ctor=meth(ic,'.ctor','');local add=meth(ic,'AddOwnedItem','System.Int32,System.Int32')
+local plans={}
+for _,v in ipairs(items) do
+ local o=call(search,u,{v[1]});assert(type(o)=='number','Invalid item response')
+ local n=0
+ if o~=0 then assert(o&gt;65536 and readPointer(o)==itemClass,'Invalid item object');n=call(getCount,o) end
+ assert(type(n)=='number' and n&gt;=0 and n&lt;=99,'Invalid quantity')
+ plans[#plans+1]={id=v[1],name=v[2],before=n,target=math.max(n,v[3])}
+end
+if not FF6_READ_ONLY then
+ local client=mono_object_new(ic);assert(client and client&gt;65536 and readPointer(client)==ic,'Cannot create item client');call(ctor,client)
+ for _,v in ipairs(plans) do
+  if v.target&gt;v.before then call(add,client,{v.id,v.target-v.before}) end
+  local o=call(search,u,{v.id});assert(type(o)=='number' and o&gt;65536 and readPointer(o)==itemClass,'Item missing after grant')
+  assert(call(getCount,o)==v.target,'Quantity verification failed: '..v.name)
+  print('ITEM VERIFIED',v.id,v.name,v.target)
+ end
+end
+print('EQUIPMENT',#plans,'readonly',tostring(FF6_READ_ONLY))
+
+showMessage("修改完成並已核對。請重開選單確認，另存新欄位。取消勾選不會還原。")
+{$asm}
+[DISABLE]
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols />
+</CheatTable>
