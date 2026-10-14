@@ -41,3 +41,46 @@ Level99：目前隊伍的永久角色升到 Lv99，同步經驗值與遊戲正�
 ## Equipment list
 
 See [equipment-list.txt](equipment-list.txt).
+
+## All Rages and All Lores - separate experimental tables
+
+| Table | Function | Validation |
+|---|---|---|
+| [AllRages](FF6_PR_AllRages_20265119.CT) | 252 Rages for Gau | IDs and missing-role guard verified; acquisition untested |
+| [AllLores](FF6_PR_AllLores_20265119.CT) | 24 Lores for Strago | IDs and missing-role guard verified; acquisition untested |
+
+FF6 Pixel Remaster - All Rages / All Lores (EXPERIMENTAL)
+Steam build 20265119
+
+AllRages: 252 normally learnable Rages for Gau. Checked against this build's
+monster-to-skill dictionary: 253 mappings, 252 unique skills. Hidden entries
+excluded by the game's mapping are not included.
+AllLores: 24 Lores for Strago. Enemy-only variants are excluded.
+
+Back up your save. After the appropriate permanent character has joined,
+load the save, stop on a normal field map, and attach Cheat Engine to
+FINAL FANTASY VI.exe. Open the desired table and enable its single entry.
+Reopen the skill menu to verify, then save into a different slot.
+
+Each table is independent and initially inactive. If the correct character
+has not joined, it stops with ROLE_NOT_READY. It identifies the actual role
+instead of modifying opening-sequence Moogle placeholders by character ID.
+Already learned skills are skipped. Disabling does not undo additions.
+
+Validation on 2026-10-14:
+- Skill/content IDs checked for all 252 Rages and 24 Lores.
+- Both missing-role guards tested in the live game. Gil, character identity,
+  jobs, EXP, ability records, and command order remained unchanged.
+- Gau and Strago are not yet present as their permanent roles in this save.
+  Actual acquisition, skill menus, save/reload persistence, and combat effects
+  have NOT been tested. These tables are experimental, unlike the previously
+  applied and user-confirmed Gil, equipment, and Lv99 tables.
+
+Implementation uses OwnedCharacterClient.LearningAbility and checks the
+resulting skill/content records, preserving existing character identity,
+job, EXP, ability records, and command order. Mono collector is required.
+A failure partway through acquisition does not roll back earlier additions;
+reload your original save to undo them.
+
+
+Lists: [Rages](AllRages-list.txt), [Lores](AllLores-list.txt).

@@ -1,0 +1,204 @@
+<?xml version='1.0' encoding='utf-8'?>
+<CheatTable CheatEngineTableVersion="45">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"全青魔法：斯特拉哥 24 招（實驗版；角色正式加入後在地圖執行）"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+local FF6_SKILL_READ_ONLY=false
+
+assert(getOpenedProcessID()~=0,'Attach to FINAL FANTASY VI.exe')
+local base=getAddressSafe('GameAssembly.dll');assert(base,'GameAssembly.dll missing')
+local pe=base+readInteger(base+60)
+assert(readInteger(pe+8)==1745316249 and readInteger(pe+80)==42369024,'Requires FF6 PR Steam build 20265119')
+assert(LaunchMonoDataCollector(),'Mono collector unavailable')
+local classes,fields,methods={},{},{}
+local function cls(ns,n)
+ local key=ns..'.'..n
+ if not classes[key] then local c=mono_findClass(ns,n);assert(c and c~=0,'Class missing: '..key);classes[key]=c end
+ return classes[key]
+end
+local function fld(c,n,t)
+ if not fields[c] then fields[c]=assert(mono_class_enumFields(c,true),'Field lookup failed') end
+ for _,v in ipairs(fields[c]) do if v.name==n then assert(not t or v.typename==t,'Field type mismatch: '..n);return v end end
+ error('Missing field '..n)
+end
+local function meth(c,n,sig)
+ local current=c
+ while current and current~=0 do
+  if not methods[current] then methods[current]=assert(mono_class_enumMethods(current),'Method lookup failed') end
+  for _,m in ipairs(methods[current]) do if m.name==n and mono_method_getSignature(m.method)==sig then return m.method end end
+  current=mono_class_getParent(current)
+ end
+ error('Missing method '..n..' ('..sig..')')
+end
+local function call(m,o,args)
+ local r,e=mono_invoke_method(0,m,o or 0,args or {});assert(e==nil,tostring(e));return r
+end
+local function ptr(a,c)
+ local p=readPointer(a);assert(p and p&gt;65536,'Invalid pointer')
+ if c then assert(readPointer(p)==c,'Object type mismatch') end
+ return p
+end
+local function list(o,max)
+ local n=readInteger(o+0x18);local a=ptr(o+0x10)
+ assert(n and n&gt;=0 and n&lt;=max,'Invalid list count')
+ local capacity=readInteger(a+0x18);assert(capacity and capacity&gt;=n and capacity&lt;=512,'Invalid capacity')
+ local r={};for i=0,n-1 do r[#r+1]=ptr(a+0x20+i*8) end;return r
+end
+local um=cls('Last.Management','UserDataManager')
+local u=mono_class_getStaticFieldValue(um,fld(um,'instance').field)
+assert(type(u)=='number' and u&gt;65536 and readPointer(u)==um,'Load a save first')
+local us=cls('Last.Data.User','UserSaveData')
+local save=ptr(u+fld(um,'saveData').offset,us)
+local cc=cls('Last.Data.User','OwnedCharacterData')
+local cs=cls('Last.Data.User','OwnedCharacterSaveData')
+local pc=cls('Last.Data','PlayerCharacterParameter')
+local chars={}
+for _,ch in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),16)) do
+ assert(readPointer(ch)==cc,'Unexpected character')
+ local s=ptr(ch+fld(cc,'saveData').offset,cs)
+ local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+ assert(id and id&gt;=1 and id&lt;=16 and not chars[id],'Invalid character ID')
+ chars[id]={object=ch,save=s,id=id}
+end
+local corps=cls('Last.Data.User','Corps');local corpsSave=cls('Last.Data.User','CorpsSaveData')
+local party={};local seen={}
+for _,o in ipairs(list(ptr(u+fld(um,'&lt;corpsList&gt;k__BackingField').offset),4)) do
+ assert(readPointer(o)==corps,'Unexpected party slot')
+ local s=ptr(o+fld(corps,'saveData').offset,corpsSave)
+ local id=readInteger(s+fld(corpsSave,'characterId','System.Int32').offset)
+ assert(id and id&gt;=0 and id&lt;=16,'Invalid party ID')
+ if id~=0 then assert(chars[id] and not seen[id],'Invalid or repeated party character');seen[id]=true;party[#party+1]=chars[id] end
+end
+assert(#party&gt;0,'Load a save and stop on the map')
+
+
+local roleName="Strago"
+local requiredStatus=8
+local requiredJob=8
+local skills={
+{140,470,"死亡宣告"},
+{141,471,"死亡輪盤"},
+{142,472,"大海嘯"},
+{143,473,"水紋吐息"},
+{144,474,"大勁風"},
+{145,475,"千針刺"},
+{146,476,"強力守護"},
+{147,477,"復仇衝擊"},
+{148,478,"白風"},
+{149,479,"５級致死一擊"},
+{150,480,"４級核爆"},
+{151,481,"３級混亂"},
+{152,482,"反射？？？"},
+{153,483,"？級神聖"},
+{154,484,"步數傷害"},
+{155,485,"原力結界"},
+{156,486,"怪音波"},
+{157,487,"臭氣"},
+{158,488,"融合"},
+{159,489,"波紋"},
+{160,490,"投石"},
+{161,491,"類星體"},
+{162,492,"大三角"},
+{163,493,"自爆"},
+}
+
+local function roster()
+ local result={}
+ for _,o in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),16)) do
+  assert(readPointer(o)==cc,'Invalid character object')
+  local s=ptr(o+fld(cc,'saveData').offset,cs)
+  local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+  assert(id and id&gt;=1 and id&lt;=16 and not result[id],'Invalid character ID')
+  result[id]={object=o,save=s,id=id,status=readInteger(s+fld(cs,'characterStatusId','System.Int32').offset),job=readInteger(s+fld(cs,'jobId','System.Int32').offset)}
+ end
+ return result
+end
+local ac=cls('Last.Data.User','OwnedAbility');local ass=cls('Last.Data.User','OwnedAbilitySaveData')
+local function abilityRecords(o)
+ local records={}
+ for _,v in ipairs(list(ptr(o+fld(cc,'&lt;OwnedAbilityList&gt;k__BackingField').offset),512)) do
+  assert(readPointer(v)==ac,'Invalid ability object')
+  local s=ptr(v+fld(ac,'saveData').offset,ass)
+  local id=readInteger(s+fld(ass,'abilityId','System.Int32').offset)
+  local cid=readInteger(s+fld(ass,'contentId','System.Int32').offset)
+  local skill=readInteger(s+fld(ass,'skillLevel','System.Int32').offset)
+  assert(id and id&gt;0 and cid and cid&gt;0 and skill and not records[id],'Invalid or duplicate ability record')
+  records[id]={content=cid,skill=skill}
+ end
+ return records
+end
+local function snapshot()
+ local result={}
+ for id,ch in pairs(roster()) do
+  result[id]={status=ch.status,job=ch.job,exp=readInteger(ch.save+fld(cs,'currentExp','System.Int32').offset),abilities=abilityRecords(ch.object),commands=list(ptr(ch.object+fld(cc,'&lt;CommandList&gt;k__BackingField').offset),64)}
+ end
+ return result
+end
+local before=snapshot();local target
+for id,ch in pairs(roster()) do
+ if ch.status==requiredStatus and ch.job==requiredJob then assert(not target,'Duplicate target role');target=ch end
+end
+assert(target,'ROLE_NOT_READY: '..roleName..' has not joined as a permanent character. No skills were changed.')
+local targetId=target.id
+local allowed={};for _,v in ipairs(skills) do allowed[v[1]]=v[2] end
+local clientClass=cls('Last.Management','OwnedCharacterClient')
+local learn=meth(clientClass,'LearningAbility','System.Int32,System.Int32')
+local ctor=meth(clientClass,'.ctor','')
+local function verify(final)
+ local after=snapshot()
+ for id,old in pairs(before) do
+  local now=assert(after[id],'Character removed')
+  assert(now.status==old.status and now.job==old.job and now.exp==old.exp,'Character identity/job/EXP changed')
+  assert(#now.commands==#old.commands,'Command count changed')
+  for i,v in ipairs(old.commands) do assert(now.commands[i]==v,'Command list changed') end
+  for aid,record in pairs(old.abilities) do
+   local v=assert(now.abilities[aid],'Existing ability removed')
+   assert(v.content==record.content and v.skill==record.skill,'Existing ability record changed')
+  end
+  for aid,v in pairs(now.abilities) do
+   if not old.abilities[aid] then
+    assert(id==targetId and allowed[aid]==v.content,'Unexpected new ability')
+   end
+  end
+ end
+ if final then
+  for _,v in ipairs(skills) do
+   local a=assert(after[targetId].abilities[v[1]],'Expected skill missing: '..v[3])
+   assert(a.content==v[2],'Content mismatch: '..v[3])
+  end
+ end
+ return after
+end
+if FF6_SKILL_READ_ONLY then
+ print('PREFLIGHT',roleName,targetId,#skills)
+ return
+end
+local client=mono_object_new(clientClass)
+assert(type(client)=='number' and client&gt;65536 and readPointer(client)==clientClass,'Cannot create character client')
+call(ctor,client)
+local added=0
+for _,v in ipairs(skills) do
+ local current=abilityRecords(assert(roster()[targetId]).object)
+ if not current[v[1]] then
+  local result=call(learn,client,{targetId,v[1]})
+  local updated=abilityRecords(assert(roster()[targetId]).object)
+  assert(updated[v[1]] and updated[v[1]].content==v[2],'Learning failed: '..v[3])
+  added=added+1
+ end
+end
+verify(true)
+print('VERIFIED',roleName,#skills,'skills;',added,'new; original character abilities and commands preserved')
+
+showMessage("技能記錄已核對完成。請重開技能選單確認，另存新欄位。取消勾選不會還原。")
+{$asm}
+[DISABLE]
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols />
+</CheatTable>
