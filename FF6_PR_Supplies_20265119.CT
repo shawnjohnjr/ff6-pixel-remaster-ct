@@ -1,0 +1,510 @@
+<?xml version='1.0' encoding='utf-8'?>
+<CheatTable CheatEngineTableVersion="45">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>7</ID>
+      <Description>"特級乙太：選擇補至 1–99 個（地圖上執行一次）"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+local FF6_SUPPLY_READ_ONLY=false
+
+assert(getOpenedProcessID()~=0,'Attach to FINAL FANTASY VI.exe')
+local base=getAddressSafe('GameAssembly.dll');assert(base,'GameAssembly.dll missing')
+local pe=base+readInteger(base+60)
+assert(readInteger(pe+8)==1745316249 and readInteger(pe+80)==42369024,'Requires FF6 PR Steam build 20265119')
+assert(LaunchMonoDataCollector(),'Mono collector unavailable')
+local classes,fields,methods={},{},{}
+local function cls(ns,n)
+ local key=ns..'.'..n
+ if not classes[key] then local c=mono_findClass(ns,n);assert(c and c~=0,'Class missing: '..key);classes[key]=c end
+ return classes[key]
+end
+local function fld(c,n,t)
+ if not fields[c] then fields[c]=assert(mono_class_enumFields(c,true),'Field lookup failed') end
+ for _,v in ipairs(fields[c]) do if v.name==n then assert(not t or v.typename==t,'Field type mismatch: '..n);return v end end
+ error('Missing field '..n)
+end
+local function meth(c,n,sig)
+ local current=c
+ while current and current~=0 do
+  if not methods[current] then methods[current]=assert(mono_class_enumMethods(current),'Method lookup failed') end
+  for _,m in ipairs(methods[current]) do if m.name==n and mono_method_getSignature(m.method)==sig then return m.method end end
+  current=mono_class_getParent(current)
+ end
+ error('Missing method '..n..' ('..sig..')')
+end
+local function call(m,o,args)
+ local r,e=mono_invoke_method(0,m,o or 0,args or {});assert(e==nil,tostring(e));return r
+end
+local function ptr(a,c)
+ local p=readPointer(a);assert(p and p&gt;65536,'Invalid pointer')
+ if c then assert(readPointer(p)==c,'Object type mismatch') end
+ return p
+end
+local function list(o,max)
+ local n=readInteger(o+0x18);local a=ptr(o+0x10)
+ assert(n and n&gt;=0 and n&lt;=max,'Invalid list count')
+ local capacity=readInteger(a+0x18);assert(capacity and capacity&gt;=n and capacity&lt;=512,'Invalid capacity')
+ local r={};for i=0,n-1 do r[#r+1]=ptr(a+0x20+i*8) end;return r
+end
+local um=cls('Last.Management','UserDataManager')
+local u=mono_class_getStaticFieldValue(um,fld(um,'instance').field)
+assert(type(u)=='number' and u&gt;65536 and readPointer(u)==um,'Load a save first')
+local us=cls('Last.Data.User','UserSaveData')
+local save=ptr(u+fld(um,'saveData').offset,us)
+local cc=cls('Last.Data.User','OwnedCharacterData')
+local cs=cls('Last.Data.User','OwnedCharacterSaveData')
+local pc=cls('Last.Data','PlayerCharacterParameter')
+local chars={}
+for _,ch in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),16)) do
+ assert(readPointer(ch)==cc,'Unexpected character')
+ local s=ptr(ch+fld(cc,'saveData').offset,cs)
+ local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+ assert(id and id&gt;=1 and id&lt;=16 and not chars[id],'Invalid character ID')
+ chars[id]={object=ch,save=s,id=id}
+end
+local corps=cls('Last.Data.User','Corps');local corpsSave=cls('Last.Data.User','CorpsSaveData')
+local party={};local seen={}
+for _,o in ipairs(list(ptr(u+fld(um,'&lt;corpsList&gt;k__BackingField').offset),4)) do
+ assert(readPointer(o)==corps,'Unexpected party slot')
+ local s=ptr(o+fld(corps,'saveData').offset,corpsSave)
+ local id=readInteger(s+fld(corpsSave,'characterId','System.Int32').offset)
+ assert(id and id&gt;=0 and id&lt;=16,'Invalid party ID')
+ if id~=0 then assert(chars[id] and not seen[id],'Invalid or repeated party character');seen[id]=true;party[#party+1]=chars[id] end
+end
+assert(#party&gt;0,'Load a save and stop on the map')
+
+
+local itemId=7
+local itemName="特級乙太"
+
+local itemClass=cls('Last.Data.User','OwnedItemData')
+local search=meth(um,'SearchOwnedItem','System.Int32')
+local getCount=meth(itemClass,'get_Count','')
+local function quantity(id)
+ local o=call(search,u,{id});assert(type(o)=='number','Invalid item response')
+ if o==0 then return 0 end
+ assert(o&gt;65536 and readPointer(o)==itemClass,'Invalid item object')
+ local n=call(getCount,o);assert(type(n)=='number' and n&gt;=0 and n&lt;=99,'Invalid quantity')
+ return n
+end
+
+local raw=FF6_SUPPLY_TARGET
+if raw==nil then
+ raw=inputQuery(itemName,'補至多少個？（1–99，現有數量較多會保留）','99')
+ if raw==nil then return end
+end
+local target=tonumber(raw)
+assert(target and target==math.floor(target) and target&gt;=1 and target&lt;=99,'Quantity must be an integer from 1 to 99')
+local beforeQuantities={}
+for _,id in ipairs({7,9,19,23}) do beforeQuantities[id]=quantity(id) end
+local before=beforeQuantities[itemId]
+local gilAddress=save+fld(us,'owendGil','System.Int32').offset
+local gilBefore=readInteger(gilAddress)
+local final=math.max(before,target)
+if not FF6_SUPPLY_READ_ONLY and final&gt;before then
+ local ic=cls('Last.Management','OwnedItemClient')
+ local ctor=meth(ic,'.ctor','');local add=meth(ic,'AddOwnedItem','System.Int32,System.Int32')
+ local client=mono_object_new(ic)
+ assert(type(client)=='number' and client&gt;65536 and readPointer(client)==ic,'Cannot create item client')
+ call(ctor,client)
+ for id,n in pairs(beforeQuantities) do assert(quantity(id)==n,'Inventory changed; stop on the field map and try again') end
+ call(add,client,{itemId,final-before})
+end
+if not FF6_SUPPLY_READ_ONLY then
+ assert(quantity(itemId)==final,'Supply quantity verification failed')
+ for id,n in pairs(beforeQuantities) do if id~=itemId then assert(quantity(id)==n,'Other supply quantity changed unexpectedly') end end
+ assert(readInteger(gilAddress)==gilBefore,'Gil changed unexpectedly')
+ print('SUPPLY VERIFIED',itemId,itemName,before,'-&gt;',final,'Gil preserved',gilBefore)
+ if not FF6_SUPPLY_SILENT then showMessage(itemName..'：'..final..'個，已核對。請重開道具選單確認。取消勾選不會還原。') end
+else
+ print('SUPPLY PREFLIGHT',itemId,itemName,before,'target',target,'Gil',gilBefore)
+end
+
+{$asm}
+[DISABLE]
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>9</ID>
+      <Description>"終極萬靈藥：選擇補至 1–99 個（地圖上執行一次）"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+local FF6_SUPPLY_READ_ONLY=false
+
+assert(getOpenedProcessID()~=0,'Attach to FINAL FANTASY VI.exe')
+local base=getAddressSafe('GameAssembly.dll');assert(base,'GameAssembly.dll missing')
+local pe=base+readInteger(base+60)
+assert(readInteger(pe+8)==1745316249 and readInteger(pe+80)==42369024,'Requires FF6 PR Steam build 20265119')
+assert(LaunchMonoDataCollector(),'Mono collector unavailable')
+local classes,fields,methods={},{},{}
+local function cls(ns,n)
+ local key=ns..'.'..n
+ if not classes[key] then local c=mono_findClass(ns,n);assert(c and c~=0,'Class missing: '..key);classes[key]=c end
+ return classes[key]
+end
+local function fld(c,n,t)
+ if not fields[c] then fields[c]=assert(mono_class_enumFields(c,true),'Field lookup failed') end
+ for _,v in ipairs(fields[c]) do if v.name==n then assert(not t or v.typename==t,'Field type mismatch: '..n);return v end end
+ error('Missing field '..n)
+end
+local function meth(c,n,sig)
+ local current=c
+ while current and current~=0 do
+  if not methods[current] then methods[current]=assert(mono_class_enumMethods(current),'Method lookup failed') end
+  for _,m in ipairs(methods[current]) do if m.name==n and mono_method_getSignature(m.method)==sig then return m.method end end
+  current=mono_class_getParent(current)
+ end
+ error('Missing method '..n..' ('..sig..')')
+end
+local function call(m,o,args)
+ local r,e=mono_invoke_method(0,m,o or 0,args or {});assert(e==nil,tostring(e));return r
+end
+local function ptr(a,c)
+ local p=readPointer(a);assert(p and p&gt;65536,'Invalid pointer')
+ if c then assert(readPointer(p)==c,'Object type mismatch') end
+ return p
+end
+local function list(o,max)
+ local n=readInteger(o+0x18);local a=ptr(o+0x10)
+ assert(n and n&gt;=0 and n&lt;=max,'Invalid list count')
+ local capacity=readInteger(a+0x18);assert(capacity and capacity&gt;=n and capacity&lt;=512,'Invalid capacity')
+ local r={};for i=0,n-1 do r[#r+1]=ptr(a+0x20+i*8) end;return r
+end
+local um=cls('Last.Management','UserDataManager')
+local u=mono_class_getStaticFieldValue(um,fld(um,'instance').field)
+assert(type(u)=='number' and u&gt;65536 and readPointer(u)==um,'Load a save first')
+local us=cls('Last.Data.User','UserSaveData')
+local save=ptr(u+fld(um,'saveData').offset,us)
+local cc=cls('Last.Data.User','OwnedCharacterData')
+local cs=cls('Last.Data.User','OwnedCharacterSaveData')
+local pc=cls('Last.Data','PlayerCharacterParameter')
+local chars={}
+for _,ch in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),16)) do
+ assert(readPointer(ch)==cc,'Unexpected character')
+ local s=ptr(ch+fld(cc,'saveData').offset,cs)
+ local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+ assert(id and id&gt;=1 and id&lt;=16 and not chars[id],'Invalid character ID')
+ chars[id]={object=ch,save=s,id=id}
+end
+local corps=cls('Last.Data.User','Corps');local corpsSave=cls('Last.Data.User','CorpsSaveData')
+local party={};local seen={}
+for _,o in ipairs(list(ptr(u+fld(um,'&lt;corpsList&gt;k__BackingField').offset),4)) do
+ assert(readPointer(o)==corps,'Unexpected party slot')
+ local s=ptr(o+fld(corps,'saveData').offset,corpsSave)
+ local id=readInteger(s+fld(corpsSave,'characterId','System.Int32').offset)
+ assert(id and id&gt;=0 and id&lt;=16,'Invalid party ID')
+ if id~=0 then assert(chars[id] and not seen[id],'Invalid or repeated party character');seen[id]=true;party[#party+1]=chars[id] end
+end
+assert(#party&gt;0,'Load a save and stop on the map')
+
+
+local itemId=9
+local itemName="終極萬靈藥"
+
+local itemClass=cls('Last.Data.User','OwnedItemData')
+local search=meth(um,'SearchOwnedItem','System.Int32')
+local getCount=meth(itemClass,'get_Count','')
+local function quantity(id)
+ local o=call(search,u,{id});assert(type(o)=='number','Invalid item response')
+ if o==0 then return 0 end
+ assert(o&gt;65536 and readPointer(o)==itemClass,'Invalid item object')
+ local n=call(getCount,o);assert(type(n)=='number' and n&gt;=0 and n&lt;=99,'Invalid quantity')
+ return n
+end
+
+local raw=FF6_SUPPLY_TARGET
+if raw==nil then
+ raw=inputQuery(itemName,'補至多少個？（1–99，現有數量較多會保留）','99')
+ if raw==nil then return end
+end
+local target=tonumber(raw)
+assert(target and target==math.floor(target) and target&gt;=1 and target&lt;=99,'Quantity must be an integer from 1 to 99')
+local beforeQuantities={}
+for _,id in ipairs({7,9,19,23}) do beforeQuantities[id]=quantity(id) end
+local before=beforeQuantities[itemId]
+local gilAddress=save+fld(us,'owendGil','System.Int32').offset
+local gilBefore=readInteger(gilAddress)
+local final=math.max(before,target)
+if not FF6_SUPPLY_READ_ONLY and final&gt;before then
+ local ic=cls('Last.Management','OwnedItemClient')
+ local ctor=meth(ic,'.ctor','');local add=meth(ic,'AddOwnedItem','System.Int32,System.Int32')
+ local client=mono_object_new(ic)
+ assert(type(client)=='number' and client&gt;65536 and readPointer(client)==ic,'Cannot create item client')
+ call(ctor,client)
+ for id,n in pairs(beforeQuantities) do assert(quantity(id)==n,'Inventory changed; stop on the field map and try again') end
+ call(add,client,{itemId,final-before})
+end
+if not FF6_SUPPLY_READ_ONLY then
+ assert(quantity(itemId)==final,'Supply quantity verification failed')
+ for id,n in pairs(beforeQuantities) do if id~=itemId then assert(quantity(id)==n,'Other supply quantity changed unexpectedly') end end
+ assert(readInteger(gilAddress)==gilBefore,'Gil changed unexpectedly')
+ print('SUPPLY VERIFIED',itemId,itemName,before,'-&gt;',final,'Gil preserved',gilBefore)
+ if not FF6_SUPPLY_SILENT then showMessage(itemName..'：'..final..'個，已核對。請重開道具選單確認。取消勾選不會還原。') end
+else
+ print('SUPPLY PREFLIGHT',itemId,itemName,before,'target',target,'Gil',gilBefore)
+end
+
+{$asm}
+[DISABLE]
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>23</ID>
+      <Description>"傳送石：選擇補至 1–99 個（地圖上執行一次）"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+local FF6_SUPPLY_READ_ONLY=false
+
+assert(getOpenedProcessID()~=0,'Attach to FINAL FANTASY VI.exe')
+local base=getAddressSafe('GameAssembly.dll');assert(base,'GameAssembly.dll missing')
+local pe=base+readInteger(base+60)
+assert(readInteger(pe+8)==1745316249 and readInteger(pe+80)==42369024,'Requires FF6 PR Steam build 20265119')
+assert(LaunchMonoDataCollector(),'Mono collector unavailable')
+local classes,fields,methods={},{},{}
+local function cls(ns,n)
+ local key=ns..'.'..n
+ if not classes[key] then local c=mono_findClass(ns,n);assert(c and c~=0,'Class missing: '..key);classes[key]=c end
+ return classes[key]
+end
+local function fld(c,n,t)
+ if not fields[c] then fields[c]=assert(mono_class_enumFields(c,true),'Field lookup failed') end
+ for _,v in ipairs(fields[c]) do if v.name==n then assert(not t or v.typename==t,'Field type mismatch: '..n);return v end end
+ error('Missing field '..n)
+end
+local function meth(c,n,sig)
+ local current=c
+ while current and current~=0 do
+  if not methods[current] then methods[current]=assert(mono_class_enumMethods(current),'Method lookup failed') end
+  for _,m in ipairs(methods[current]) do if m.name==n and mono_method_getSignature(m.method)==sig then return m.method end end
+  current=mono_class_getParent(current)
+ end
+ error('Missing method '..n..' ('..sig..')')
+end
+local function call(m,o,args)
+ local r,e=mono_invoke_method(0,m,o or 0,args or {});assert(e==nil,tostring(e));return r
+end
+local function ptr(a,c)
+ local p=readPointer(a);assert(p and p&gt;65536,'Invalid pointer')
+ if c then assert(readPointer(p)==c,'Object type mismatch') end
+ return p
+end
+local function list(o,max)
+ local n=readInteger(o+0x18);local a=ptr(o+0x10)
+ assert(n and n&gt;=0 and n&lt;=max,'Invalid list count')
+ local capacity=readInteger(a+0x18);assert(capacity and capacity&gt;=n and capacity&lt;=512,'Invalid capacity')
+ local r={};for i=0,n-1 do r[#r+1]=ptr(a+0x20+i*8) end;return r
+end
+local um=cls('Last.Management','UserDataManager')
+local u=mono_class_getStaticFieldValue(um,fld(um,'instance').field)
+assert(type(u)=='number' and u&gt;65536 and readPointer(u)==um,'Load a save first')
+local us=cls('Last.Data.User','UserSaveData')
+local save=ptr(u+fld(um,'saveData').offset,us)
+local cc=cls('Last.Data.User','OwnedCharacterData')
+local cs=cls('Last.Data.User','OwnedCharacterSaveData')
+local pc=cls('Last.Data','PlayerCharacterParameter')
+local chars={}
+for _,ch in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),16)) do
+ assert(readPointer(ch)==cc,'Unexpected character')
+ local s=ptr(ch+fld(cc,'saveData').offset,cs)
+ local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+ assert(id and id&gt;=1 and id&lt;=16 and not chars[id],'Invalid character ID')
+ chars[id]={object=ch,save=s,id=id}
+end
+local corps=cls('Last.Data.User','Corps');local corpsSave=cls('Last.Data.User','CorpsSaveData')
+local party={};local seen={}
+for _,o in ipairs(list(ptr(u+fld(um,'&lt;corpsList&gt;k__BackingField').offset),4)) do
+ assert(readPointer(o)==corps,'Unexpected party slot')
+ local s=ptr(o+fld(corps,'saveData').offset,corpsSave)
+ local id=readInteger(s+fld(corpsSave,'characterId','System.Int32').offset)
+ assert(id and id&gt;=0 and id&lt;=16,'Invalid party ID')
+ if id~=0 then assert(chars[id] and not seen[id],'Invalid or repeated party character');seen[id]=true;party[#party+1]=chars[id] end
+end
+assert(#party&gt;0,'Load a save and stop on the map')
+
+
+local itemId=23
+local itemName="傳送石"
+
+local itemClass=cls('Last.Data.User','OwnedItemData')
+local search=meth(um,'SearchOwnedItem','System.Int32')
+local getCount=meth(itemClass,'get_Count','')
+local function quantity(id)
+ local o=call(search,u,{id});assert(type(o)=='number','Invalid item response')
+ if o==0 then return 0 end
+ assert(o&gt;65536 and readPointer(o)==itemClass,'Invalid item object')
+ local n=call(getCount,o);assert(type(n)=='number' and n&gt;=0 and n&lt;=99,'Invalid quantity')
+ return n
+end
+
+local raw=FF6_SUPPLY_TARGET
+if raw==nil then
+ raw=inputQuery(itemName,'補至多少個？（1–99，現有數量較多會保留）','99')
+ if raw==nil then return end
+end
+local target=tonumber(raw)
+assert(target and target==math.floor(target) and target&gt;=1 and target&lt;=99,'Quantity must be an integer from 1 to 99')
+local beforeQuantities={}
+for _,id in ipairs({7,9,19,23}) do beforeQuantities[id]=quantity(id) end
+local before=beforeQuantities[itemId]
+local gilAddress=save+fld(us,'owendGil','System.Int32').offset
+local gilBefore=readInteger(gilAddress)
+local final=math.max(before,target)
+if not FF6_SUPPLY_READ_ONLY and final&gt;before then
+ local ic=cls('Last.Management','OwnedItemClient')
+ local ctor=meth(ic,'.ctor','');local add=meth(ic,'AddOwnedItem','System.Int32,System.Int32')
+ local client=mono_object_new(ic)
+ assert(type(client)=='number' and client&gt;65536 and readPointer(client)==ic,'Cannot create item client')
+ call(ctor,client)
+ for id,n in pairs(beforeQuantities) do assert(quantity(id)==n,'Inventory changed; stop on the field map and try again') end
+ call(add,client,{itemId,final-before})
+end
+if not FF6_SUPPLY_READ_ONLY then
+ assert(quantity(itemId)==final,'Supply quantity verification failed')
+ for id,n in pairs(beforeQuantities) do if id~=itemId then assert(quantity(id)==n,'Other supply quantity changed unexpectedly') end end
+ assert(readInteger(gilAddress)==gilBefore,'Gil changed unexpectedly')
+ print('SUPPLY VERIFIED',itemId,itemName,before,'-&gt;',final,'Gil preserved',gilBefore)
+ if not FF6_SUPPLY_SILENT then showMessage(itemName..'：'..final..'個，已核對。請重開道具選單確認。取消勾選不會還原。') end
+else
+ print('SUPPLY PREFLIGHT',itemId,itemName,before,'target',target,'Gil',gilBefore)
+end
+
+{$asm}
+[DISABLE]
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>19</ID>
+      <Description>"魔石碎片：選擇補至 1–99 個（地圖上執行一次）"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+local FF6_SUPPLY_READ_ONLY=false
+
+assert(getOpenedProcessID()~=0,'Attach to FINAL FANTASY VI.exe')
+local base=getAddressSafe('GameAssembly.dll');assert(base,'GameAssembly.dll missing')
+local pe=base+readInteger(base+60)
+assert(readInteger(pe+8)==1745316249 and readInteger(pe+80)==42369024,'Requires FF6 PR Steam build 20265119')
+assert(LaunchMonoDataCollector(),'Mono collector unavailable')
+local classes,fields,methods={},{},{}
+local function cls(ns,n)
+ local key=ns..'.'..n
+ if not classes[key] then local c=mono_findClass(ns,n);assert(c and c~=0,'Class missing: '..key);classes[key]=c end
+ return classes[key]
+end
+local function fld(c,n,t)
+ if not fields[c] then fields[c]=assert(mono_class_enumFields(c,true),'Field lookup failed') end
+ for _,v in ipairs(fields[c]) do if v.name==n then assert(not t or v.typename==t,'Field type mismatch: '..n);return v end end
+ error('Missing field '..n)
+end
+local function meth(c,n,sig)
+ local current=c
+ while current and current~=0 do
+  if not methods[current] then methods[current]=assert(mono_class_enumMethods(current),'Method lookup failed') end
+  for _,m in ipairs(methods[current]) do if m.name==n and mono_method_getSignature(m.method)==sig then return m.method end end
+  current=mono_class_getParent(current)
+ end
+ error('Missing method '..n..' ('..sig..')')
+end
+local function call(m,o,args)
+ local r,e=mono_invoke_method(0,m,o or 0,args or {});assert(e==nil,tostring(e));return r
+end
+local function ptr(a,c)
+ local p=readPointer(a);assert(p and p&gt;65536,'Invalid pointer')
+ if c then assert(readPointer(p)==c,'Object type mismatch') end
+ return p
+end
+local function list(o,max)
+ local n=readInteger(o+0x18);local a=ptr(o+0x10)
+ assert(n and n&gt;=0 and n&lt;=max,'Invalid list count')
+ local capacity=readInteger(a+0x18);assert(capacity and capacity&gt;=n and capacity&lt;=512,'Invalid capacity')
+ local r={};for i=0,n-1 do r[#r+1]=ptr(a+0x20+i*8) end;return r
+end
+local um=cls('Last.Management','UserDataManager')
+local u=mono_class_getStaticFieldValue(um,fld(um,'instance').field)
+assert(type(u)=='number' and u&gt;65536 and readPointer(u)==um,'Load a save first')
+local us=cls('Last.Data.User','UserSaveData')
+local save=ptr(u+fld(um,'saveData').offset,us)
+local cc=cls('Last.Data.User','OwnedCharacterData')
+local cs=cls('Last.Data.User','OwnedCharacterSaveData')
+local pc=cls('Last.Data','PlayerCharacterParameter')
+local chars={}
+for _,ch in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),16)) do
+ assert(readPointer(ch)==cc,'Unexpected character')
+ local s=ptr(ch+fld(cc,'saveData').offset,cs)
+ local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+ assert(id and id&gt;=1 and id&lt;=16 and not chars[id],'Invalid character ID')
+ chars[id]={object=ch,save=s,id=id}
+end
+local corps=cls('Last.Data.User','Corps');local corpsSave=cls('Last.Data.User','CorpsSaveData')
+local party={};local seen={}
+for _,o in ipairs(list(ptr(u+fld(um,'&lt;corpsList&gt;k__BackingField').offset),4)) do
+ assert(readPointer(o)==corps,'Unexpected party slot')
+ local s=ptr(o+fld(corps,'saveData').offset,corpsSave)
+ local id=readInteger(s+fld(corpsSave,'characterId','System.Int32').offset)
+ assert(id and id&gt;=0 and id&lt;=16,'Invalid party ID')
+ if id~=0 then assert(chars[id] and not seen[id],'Invalid or repeated party character');seen[id]=true;party[#party+1]=chars[id] end
+end
+assert(#party&gt;0,'Load a save and stop on the map')
+
+
+local itemId=19
+local itemName="魔石碎片"
+
+local itemClass=cls('Last.Data.User','OwnedItemData')
+local search=meth(um,'SearchOwnedItem','System.Int32')
+local getCount=meth(itemClass,'get_Count','')
+local function quantity(id)
+ local o=call(search,u,{id});assert(type(o)=='number','Invalid item response')
+ if o==0 then return 0 end
+ assert(o&gt;65536 and readPointer(o)==itemClass,'Invalid item object')
+ local n=call(getCount,o);assert(type(n)=='number' and n&gt;=0 and n&lt;=99,'Invalid quantity')
+ return n
+end
+
+local raw=FF6_SUPPLY_TARGET
+if raw==nil then
+ raw=inputQuery(itemName,'補至多少個？（1–99，現有數量較多會保留）','99')
+ if raw==nil then return end
+end
+local target=tonumber(raw)
+assert(target and target==math.floor(target) and target&gt;=1 and target&lt;=99,'Quantity must be an integer from 1 to 99')
+local beforeQuantities={}
+for _,id in ipairs({7,9,19,23}) do beforeQuantities[id]=quantity(id) end
+local before=beforeQuantities[itemId]
+local gilAddress=save+fld(us,'owendGil','System.Int32').offset
+local gilBefore=readInteger(gilAddress)
+local final=math.max(before,target)
+if not FF6_SUPPLY_READ_ONLY and final&gt;before then
+ local ic=cls('Last.Management','OwnedItemClient')
+ local ctor=meth(ic,'.ctor','');local add=meth(ic,'AddOwnedItem','System.Int32,System.Int32')
+ local client=mono_object_new(ic)
+ assert(type(client)=='number' and client&gt;65536 and readPointer(client)==ic,'Cannot create item client')
+ call(ctor,client)
+ for id,n in pairs(beforeQuantities) do assert(quantity(id)==n,'Inventory changed; stop on the field map and try again') end
+ call(add,client,{itemId,final-before})
+end
+if not FF6_SUPPLY_READ_ONLY then
+ assert(quantity(itemId)==final,'Supply quantity verification failed')
+ for id,n in pairs(beforeQuantities) do if id~=itemId then assert(quantity(id)==n,'Other supply quantity changed unexpectedly') end end
+ assert(readInteger(gilAddress)==gilBefore,'Gil changed unexpectedly')
+ print('SUPPLY VERIFIED',itemId,itemName,before,'-&gt;',final,'Gil preserved',gilBefore)
+ if not FF6_SUPPLY_SILENT then showMessage(itemName..'：'..final..'個，已核對。請重開道具選單確認。取消勾選不會還原。') end
+else
+ print('SUPPLY PREFLIGHT',itemId,itemName,before,'target',target,'Gil',gilBefore)
+end
+
+{$asm}
+[DISABLE]
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols />
+</CheatTable>
