@@ -15,7 +15,7 @@ DataStorage.Serialize returned an exact before/after match.
 Steam 成就／Steam achievement
 get_hidden_item: 0 (locked) -> 1 (unlocked).
 All other 36 achievements unchanged.
-Steam page user confirmation: pending.
+Steam page user confirmation: user confirmed the unlock.
 GetAchievmentProgress('get_hidden_item') returned 0 before and after;
 this boolean-style achievement is verified through the actual unlock state,
 not by treating that stat read as collection progress.

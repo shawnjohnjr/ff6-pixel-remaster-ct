@@ -50,5 +50,5 @@ This achievement uses a completion condition rather than a readable 50-point Ste
 The full 512-byte treasure array and serialized map data matched their original snapshots. Character identities, abilities, commands, levels, four stats, HP/MP, EXP, Gil, magicite, kill count and map were unchanged. The delivered CT's title, inactive default, checkbox execution, default backup, bilingual result dialog and repeat execution were verified.
 
 驗證範圍／Validation scope
-Steam API 已確認解鎖；Steam 頁面的使用者確認尚待回覆。未重啟整個遊戲，未測其他帳號／系統／版本，也未實際拾取還原後的隱藏道具。保留探索的驗證依據為完整旗標與地圖資料完全一致。
-Unlock confirmed through the Steam API; user confirmation on Steam's page is pending. A full restart, other accounts/systems/builds and collecting a hidden item after restoration were not tested. Exploration-state preservation was verified by an exact flag-array and full map-data match.
+Steam API 已確認解鎖；使用者已在 Steam 成就頁確認解鎖。未重啟整個遊戲，未測其他帳號／系統／版本，也未實際拾取還原後的隱藏道具。保留探索的驗證依據為完整旗標與地圖資料完全一致。
+Unlock confirmed through the Steam API and by the user on Steam's achievement page. A full restart, other accounts/systems/builds and collecting a hidden item after restoration were not tested. Exploration-state preservation was verified by an exact flag-array and full map-data match.
