@@ -1,0 +1,359 @@
+Group | Book record | Monster ID | 中文名稱 | English name
+1 | 1 | 1 | 衛兵 | Guard
+2 | 2 | 26 | 銀灰狼 | Silver Lobo
+3 | 3 | 28 | 美嘉羅巨象 | Megalodoth
+4 | 4 | 20 | 變異鼠 | Wererat
+5 | 5 | 71 | 噴發病毒 | Spritzer
+6 | 6 | 78 | 強盜 | Bandit
+7 | 7 | 24 | 綠葉兔 | Leaf Bunny
+8 | 8 | 41 | 黑風鳥 | Darkwind
+9 | 9 | 93 | 沙鰩 | Sand Ray
+10 | 10 | 94 | 鉗蠍 | Alacran
+11 | 11 | 100 | 弗帕 | Foper
+12 | 12 | 47 | 馬蜂 | Hornet
+13 | 13 | 99 | 烏洛克蟲 | Urok
+14 | 14 | 22 | 貝爾摩達 | Belmodar
+15 | 15 | 169 | 惡靈強盜 | Unseelie
+16 | 16 | 19 | 畝鼠 | Mu
+17 | 17 | 12 | 扎格瑞姆 | Zaghrem
+18 | 18 | 51 | 延齡草 | Trillium
+19 | 19 | 123 | 高爾吉亞巨象 | Gorgias
+20 | 20 | 135 | 塞皮亞斯鳥 | Cirpius
+21 | 21 | 35 | 小飛龍 | Lesser Lopros
+22 | 22 | 57 | 墨魚螺 | Nautiloid
+23 | 23 | 58 | 希比埃莫蟹 | Exocite
+24 | 24 | 160 | 重型裝甲 | Heavy Armor
+25 | 25 | 18 | 指揮官 | Commander
+26 | 26 | 114 | 威克托獵犬 | Vector Hound
+27 | 27 | 55 | 苦魂鰩 | Cartagra
+28 | 28 | 149 | 巔峰蟹 | Acrophies
+29 | 29 | 246 | 巨型熊 | Gold Bear
+30 | 30 | 240 | 瓦萊奧強盜 | Valeor
+31 | 31 | 245 | 狂野鼠 | Wild Rat
+32 | 32 | 25 | 流浪貓 | Stray Cat
+33 | 33 | 42 | 象鳥 | Aepyornis
+34 | 34 | 48 | 蕁麻蝗 | Nettlehopper
+35 | 35 | 119 | 奇皮兔 | Chippirabbit
+36 | 36 | 335 | 隊長 | Captain
+37 | 37 | 2 | 帝國兵 | Imperial Soldier
+38 | 38 | 3 | 重裝兵 | Templar
+39 | 39 | 69 | 衛星射手 | Satellite
+40 | 40 | 91 | 遊魂 | Ghost
+41 | 41 | 163 | 帕普病毒 | Poplium
+42 | 42 | 9 | 雲法師 | Cloud
+43 | 43 | 15 | 天語影魔 | Angel Whisper
+44 | 44 | 16 | 超靈惡魔 | Oversoul
+45 | 45 | 80 | 炸彈 | Bomb
+46 | 46 | 187 | 活屍 | Living Dead
+47 | 47 | 343 | 亡靈 | Apparition
+48 | 48 | 306 | 齊格弗里德 | Siegfried
+49 | 49 | 341 | 獅鷲魚 | Opinicus Fish
+50 | 50 | 59 | 蛇形魚 | Anguiform
+51 | 51 | 90 | 狂熱水母 | Aspiran
+52 | 52 | 95 | 海珊瑚 | Actinian
+53 | 53 | 29 | 領頭軍犬 | Fidor
+54 | 54 | 102 | 上士 | Corporal
+55 | 55 | 122 | 追蹤獵犬 | Hunting Hound
+56 | 56 | 36 | 化石龍 | Fossil Dragon
+57 | 57 | 43 | 兀鷲 | Vulture
+58 | 58 | 109 | 鐵拳鬥士 | Iron Fist
+59 | 59 | 121 | 血牙獵犬 | Bloodfang
+60 | 60 | 141 | 糖腦蜂 | Rock Wasp
+61 | 61 | 145 | 毒麻草 | Paraladia
+62 | 62 | 79 | 惡徒 | Harvester
+63 | 63 | 84 | 山嶺巨人 | Hill Gigas
+64 | 64 | 224 | 胡謅強盜 | Gobbledygook
+65 | 65 | 83 | 蒙面舞者 | Veil Dancer
+66 | 66 | 116 | 強襲鼠 | Stunner
+67 | 67 | 210 | 妖咒鼠 | Goetia
+68 | 68 | 62 | 利特瓦雞蛇 | Litwor Chicken
+69 | 69 | 108 | 小丑 | Joker
+70 | 70 | 124 | 恫犬 | Don
+71 | 71 | 130 | 雙足飛龍 | Wyvern
+72 | 72 | 142 | 草龍蝗 | Grasswyrm
+73 | 73 | 171 | 榴彈怪 | Grenade
+74 | 74 | 233 | 障礙蜂 | Bug
+75 | 75 | 66 | 洋蔥兵 | Onion Knight
+76 | 76 | 200 | 中士 | Sergeant
+77 | 77 | 204 | 惡尾犬 | Belzecue
+78 | 78 | 358 | 原型裝甲 | Proto Armor
+79 | 79 | 46 | 捕手機器人 | Trapper
+80 | 80 | 72 | 布丁 | Flan
+81 | 81 | 103 | 將軍 | General
+82 | 82 | 118 | 破壞魔 | Destroyer
+83 | 83 | 137 | 胡兀鷲 | Lenergia
+84 | 84 | 7 | 機車大魔 | Magna Roader
+85 | 85 | 176 | 機車大魔 | Magna Roader
+86 | 86 | 161 | 追擊射手 | Chaser
+86 | 87 | 551 | 追擊射手 | Chaser
+87 | 88 | 73 | 遺棄之鬼 | Outcast
+88 | 89 | 111 | 挑釁影魔 | Provoker
+89 | 90 | 131 | 殭屍龍 | Zombie Dragon
+90 | 91 | 180 | 大火蠍 | Antares
+91 | 92 | 230 | 巫妖 | Lich
+92 | 93 | 195 | 親衛隊 | Imperial Elite
+93 | 94 | 259 | 巨型裝甲 | Mega Armor
+94 | 95 | 30 | 布裡阿柔斯 | Briareus
+95 | 96 | 151 | 吞魔魚 | Devourer
+96 | 97 | 32 | 奇美拉 | Chimera
+97 | 98 | 164 | 沉睡獅 | Intangir
+98 | 99 | 223 | 氣球怪 | Balloon
+99 | 100 | 185 | 波拿空蟲 | Bonnacon
+100 | 101 | 209 | 陸蟋蟀 | Land Grillon
+101 | 102 | 215 | 堅鋼甲獸 | Adamankary
+102 | 103 | 239 | 曼陀羅 | Mandrake
+103 | 104 | 236 | 毒貝努鳥 | Venobennu
+104 | 105 | 68 | 飛行裝甲 | Sky Armor
+105 | 106 | 228 | 噴火裝甲 | Spitfire
+106 | 107 | 75 | 高加顱 | Brainpan
+107 | 108 | 165 | 失配亡靈 | Misfit
+108 | 109 | 13 | 經外惡魔 | Apocrypha
+109 | 110 | 132 | 巨龍 | Dragon
+110 | 111 | 217 | 白金龍 | Platinum Dragon
+111 | 112 | 33 | 凶惡巨獸 | Behemoth
+112 | 113 | 4 | 忍者 | Ninja
+113 | 114 | 362 | 諾德 | Naude
+114 | 115 | 34 | 法夫納 | Fafnir
+115 | 116 | 50 | 螳螂殺手 | Killer Mantis
+116 | 117 | 115 | 吱吱熊 | Peeper
+117 | 118 | 125 | 怒蛇 | Murussu
+118 | 119 | 153 | 巨蛙 | Gigantoad
+119 | 120 | 179 | 守地鰩 | Land Ray
+120 | 121 | 203 | 月犬 | Luna Wolf
+121 | 122 | 214 | 黑龍 | Black Dragon
+122 | 123 | 231 | 鵬鳥 | Rukh
+123 | 124 | 45 | 佐卡蟹 | Zokka
+124 | 125 | 193 | 夜行影魔 | Nightwalker
+125 | 126 | 226 | 毒蠍 | Scorpion
+126 | 127 | 49 | 三角甲蟲 | Delta Beetle
+127 | 128 | 54 | 吸血荊棘 | Vampire Thorn
+128 | 129 | 61 | 蜥蜴 | Lizard
+129 | 130 | 89 | 仇己頭牛 | Devoahan
+130 | 131 | 96 | 沙馬 | Sandhorse
+131 | 132 | 152 | 黃道巨蟹 | Cancer
+132 | 133 | 186 | 俄刻阿諾斯 | Oceanus
+133 | 134 | 196 | 黃沙兔 | Desert Hare
+134 | 135 | 74 | 胖菩提 | Humpty
+135 | 136 | 76 | 嘟嘟飛肚 | Cruller
+136 | 137 | 140 | 垂降機器人 | Dropper
+137 | 138 | 170 | 斬首獵人 | Neck Hunter
+138 | 139 | 216 | 但丁 | Dante
+139 | 140 | 212 | 離隊軍犬 | Bogy
+140 | 141 | 138 | 馬可西亞斯 | Marchosias
+141 | 142 | 168 | 深瞳 | Deepeye
+142 | 143 | 220 | 慕斯怪 | Mousse
+143 | 144 | 6 | 貝佳斯 | Borghese
+144 | 145 | 98 | 魔界花 | Malboro
+145 | 146 | 112 | 巨能惡魔 | Cloudwraith
+146 | 147 | 146 | 避陽之花 | Exoray
+147 | 148 | 17 | 索命骸骨 | Skeletal Horror
+148 | 149 | 21 | 盜熊 | Mugbear
+149 | 150 | 198 | 東方魔人 | Devil Fist
+150 | 151 | 143 | 妖靈蟲 | Luridan
+151 | 152 | 222 | 懲罰者 | Punisher
+152 | 153 | 243 | 格剌希亞拉波斯 | Glasya Labolas
+153 | 154 | 127 | 強化奇美拉 | Gorgimera
+154 | 155 | 144 | 剁足螳螂 | Twinscythe
+155 | 156 | 188 | 死刑骸骨 | Death Warden
+156 | 157 | 10 | 吐霧女法師 | Misty
+157 | 158 | 52 | 大王花 | Rafflesia
+158 | 159 | 81 | 靜畫魔 | Still Life
+159 | 160 | 120 | 豹貓 | Coeurl Cat
+160 | 161 | 147 | 地雷球 | Crusher
+161 | 162 | 174 | 利刃舞者 | Blade Dancer
+162 | 163 | 205 | 醫官鳥 | Caladrius
+163 | 164 | 148 | 銜尾荊棘 | Ouroboros
+164 | 165 | 189 | 死亡面相 | Face
+165 | 166 | 192 | 澤維亞克 | Zeveak
+166 | 167 | 234 | 海洋之花 | Seaflower
+167 | 168 | 237 | 伽琉普德斯鳥 | Galypdes
+168 | 169 | 242 | 亡靈法師 | Necromancer
+169 | 170 | 248 | 柯律門努斯 | Clymenus
+170 | 171 | 227 | 混沌龍 | Chaos Dragon
+171 | 172 | 39 | 腕龍 | Brachiosaur
+172 | 173 | 40 | 暴龍 | Tyrannosaur
+173 | 174 | 53 | 風滾球 | Tumbleweed
+174 | 175 | 60 | 槍舌蛙 | Leap Frog
+175 | 176 | 63 | 礦地爬蟲 | Slagworm
+176 | 177 | 77 | 仙人掌 | Cactuar
+177 | 178 | 92 | 巨型爬蟲 | Crawler
+178 | 179 | 136 | 駭鳥 | Sprinter
+179 | 180 | 154 | 石蜥蜴 | Basilisk
+180 | 181 | 177 | 呂卡貓 | Lycaon
+181 | 182 | 211 | 大螳螂 | Greater Mantis
+182 | 183 | 157 | 試煉騎士 | Test Rider
+183 | 184 | 197 | 魔導師 | Wizard
+184 | 185 | 207 | 盧伽維巨象 | Lukhavi
+185 | 186 | 232 | 機車大魔 | Magna Roader
+186 | 187 | 244 | 機車大魔 | Magna Roader
+187 | 188 | 219 | 精神細胞 | Psychos
+188 | 189 | 249 | 獵犬加爾姆 | Garm
+189 | 190 | 85 | 冬貝利 | Tonberry
+190 | 191 | 159 | 洋蔥衝鋒兵 | Onion Dasher
+191 | 192 | 181 | 海葵 | Anemone
+192 | 193 | 199 | 伊盧揚卡什 | Illuyankas
+193 | 194 | 202 | 頑皮鼠 | Knotty
+194 | 195 | 206 | 查瑪奇鳥 | Tzakmaqiel
+195 | 196 | 370 | 吞空巨蟲 | Zone Eater
+196 | 197 | 44 | 瓦塞吉亞塔鳥 | Vasegiatta
+197 | 198 | 139 | 陰風蟲 | Gloomwind
+198 | 199 | 213 | 普魯沙熊 | Purusa
+199 | 200 | 104 | 隱身忍者 | Covert
+200 | 201 | 105 | 神威 | Kamui
+201 | 202 | 126 | 氣球獸 | Wartpuck
+202 | 203 | 221 | 死屍 | Shambling Corpse
+203 | 204 | 241 | 安度西亞斯 | Amduscias
+204 | 205 | 251 | 巴爾澤芬 | Baalzephon
+205 | 206 | 5 | 武士 | Samurai
+206 | 207 | 11 | 阿爾賈布林 | Al Jabr
+207 | 208 | 31 | 膨脹獸 | Suriander
+208 | 209 | 134 | 變異龍 | Weredragon
+209 | 210 | 150 | 施密特裝甲 | Schmidt
+210 | 211 | 158 | 冥王裝甲 | Pluto Armor
+211 | 212 | 172 | 絕色騎兵 | Alluring Rider
+212 | 213 | 173 | 潘朵拉魔箱 | Pandora
+213 | 214 | 178 | 寄生魔 | Parasite
+214 | 215 | 191 | 可可 | Coco
+215 | 216 | 255 | 伊俄 | Io
+216 | 217 | 70 | 裝甲兵器 | Armored Weapon
+217 | 218 | 82 | 癲狂箱 | Lunatys
+218 | 219 | 88 | 費加羅蟲蜥 | Figaro Lizard
+219 | 220 | 110 | 撒旦 | Devil
+220 | 221 | 167 | 恩歐 | Enuo
+221 | 222 | 86 | 魔法罐 | Magic Urn
+222 | 223 | 307 | １０級法師 | Level 10 Magic
+223 | 224 | 305 | ２０級法師 | Level 20 Magic
+224 | 225 | 294 | ３０級法師 | Level 30 Magic
+225 | 226 | 300 | ４０級法師 | Level 40 Magic
+226 | 227 | 308 | ５０級法師 | Level 50 Magic
+227 | 228 | 314 | ６０級法師 | Level 60 Magic
+228 | 229 | 324 | ７０級法師 | Level 70 Magic
+229 | 230 | 356 | ８０級法師 | Level 80 Magic
+230 | 231 | 357 | ９０級法師 | Level 90 Magic
+231 | 232 | 106 | 邪術師 | Warlock
+232 | 233 | 113 | 大天骸骨 | Mahadeva
+233 | 234 | 117 | 惡魔熊 | Sorath
+234 | 235 | 155 | 梅杜莎雞蛇 | Medusa Chicken
+235 | 236 | 166 | 胖創生 | Creature
+236 | 237 | 182 | 月形海馬 | Moonform
+237 | 238 | 201 | 阿斯比德凱隆 | Aspidochelon
+238 | 239 | 548 | 齊格弗里德 | Siegfried
+239 | 240 | 8 | 護衛武士 | Yojimbo
+240 | 241 | 14 | 暗力法師 | Dark Force
+241 | 242 | 23 | 姆德斯德 | Muud Suud
+242 | 243 | 38 | 魔神龍 | Fiend Dragon
+243 | 244 | 87 | 動子 | Mover
+244 | 245 | 107 | 清純女法師 | Cherry
+245 | 246 | 129 | 威克托龍 | Vector Lythos
+246 | 247 | 133 | 遠古龍 | Primeval Dragon
+247 | 248 | 156 | 陸地巨蟲 | Landworm
+248 | 249 | 162 | 伽瑪兵器 | Gamma
+249 | 250 | 184 | 大魔界花 | Great Malboro
+250 | 251 | 190 | 化外忍者 | Outsider
+251 | 252 | 194 | 惡魔騎士 | Demon Knight
+252 | 253 | 218 | 決鬥裝甲 | Duel Armor
+253 | 254 | 225 | 巨型凶惡巨獸 | Great Behemoth
+254 | 255 | 229 | 威克托奇美拉 | Vector Chimera
+255 | 256 | 235 | 基準裝甲 | Fortis
+256 | 257 | 238 | 廢棄機器人 | Junk
+257 | 258 | 247 | 無情射手 | InnoSent
+258 | 259 | 250 | 代達羅斯 | Daedalus
+259 | 260 | 252 | 惡精靈 | Ahriman
+260 | 261 | 253 | 死亡機器 | Death Machine
+261 | 262 | 254 | 金屬洋蔥殺手 | Metal Hitman
+262 | 263 | 262 | 普羅米修士 | Prometheus
+263 | 264 | 257 | 尤彌爾 | Ymir
+264 | 265 | 309 | 尤彌爾 | Ymir
+265 | 266 | 101 | 衛兵隊長 | Guard Leader
+266 | 267 | 67 | 魔導裝甲 | Magitek Armor
+267 | 268 | 260 | 瓦格斯 | Vargas
+268 | 269 | 334 | 異熊 | Ipooh
+269 | 270 | 301 | 奧爾特羅斯 | Ultros
+270 | 271 | 261 | 掘地裝甲 | Tunnel Armor
+271 | 272 | 263 | 魔列車 | Phantom Train
+272 | 273 | 342 | 利佐帕斯魚 | Rhizopas
+273 | 274 | 64 | 地獄騎士 | Hell's Rider
+274 | 275 | 331 | 凱夫卡 | Kefka
+275 | 276 | 264 | 達達魯瑪 | Dadaluma
+276 | 277 | 302 | 奧爾特羅斯 | Ultros
+277 | 278 | 266 | 伊弗利特 | Ifrit
+278 | 279 | 265 | 濕婆 | Shiva
+279 | 280 | 267 | ０２４號 | Number 024
+280 | 281 | 268 | １２８號 | Number 128
+281 | 282 | 320 | 右手劍 | Right Blade
+282 | 283 | 321 | 左手劍 | Left Blade
+283 | 284 | 270 | 吊臂 | Crane
+284 | 285 | 271 | 吊臂 | Crane
+285 | 286 | 279 | 噬火球 | Flame Eater
+286 | 287 | 303 | 奧爾特羅斯 | Ultros
+287 | 288 | 304 | 提豐 | Typhon
+288 | 289 | 361 | 奧爾特羅斯 | Ultros
+289 | 290 | 276 | 空軍裝甲 | Air Force
+290 | 291 | 326 | 雷射炮 | Laser Gun
+291 | 292 | 328 | 導彈艙 | Missile Bay
+292 | 293 | 327 | 袖珍屏障 | Bit
+293 | 294 | 175 | 龐然巨人 | Gigantos
+294 | 295 | 280 | 究極武器 | Ultima Weapon
+295 | 296 | 281 | 涅拉帕 | Nelapa
+296 | 297 | 363 | 渾巴巴 | Humbaba
+296 | 298 | 364 | 渾巴巴 | Humbaba
+296 | 299 | 365 | 渾巴巴 | Humbaba
+296 | 300 | 366 | 渾巴巴 | Humbaba
+297 | 301 | 284 | 觸手 | Tentacle
+298 | 302 | 317 | 觸手 | Tentacle
+299 | 303 | 318 | 觸手 | Tentacle
+300 | 304 | 319 | 觸手 | Tentacle
+301 | 305 | 258 | 呈獻螺 | Angler Whelk
+302 | 306 | 310 | 呈獻螺 | Angler Whelk
+303 | 307 | 285 | 無頭騎士 | Dullahan
+304 | 308 | 128 | 凶惡巨獸王 | Behemoth King
+305 | 309 | 282 | 凶惡巨獸王 | Behemoth King
+306 | 310 | 287 | 查達奴克 | Chadarnook
+306 | 311 | 329 | 查達奴克 | Chadarnook
+307 | 312 | 325 | 艷翼蛇鳥 | Valigarmanda
+308 | 313 | 256 | 冬貝利群 | Tonberries
+309 | 314 | 273 | 雪人 | Yeti
+310 | 315 | 288 | 雷韋 | Curlax
+311 | 316 | 289 | 索紐 | Laragorn
+312 | 317 | 290 | 斯艾紐 | Moebius
+313 | 318 | 291 | 亞歷魂 | Wrexsoul
+314 | 319 | 360 | 安魂者 | Soul Saver
+315 | 320 | 313 | 冬貝利首領 | Master Tonberry
+316 | 321 | 293 | 武士魂 | Samurai Soul
+317 | 322 | 359 | 魔法大師 | Magic Master
+318 | 323 | 286 | 死亡凝視 | Deathgaze
+319 | 324 | 292 | 希登 | Hidon
+320 | 325 | 295 | 厄瑞玻斯 | Erebus
+320 | 326 | 353 | 厄瑞玻斯 | Erebus
+320 | 327 | 354 | 厄瑞玻斯 | Erebus
+320 | 328 | 355 | 厄瑞玻斯 | Erebus
+321 | 329 | 340 | 紅龍 | Red Dragon
+322 | 330 | 339 | 藍龍 | Blue Dragon
+323 | 331 | 337 | 黃龍 | Gold Dragon
+324 | 332 | 330 | 冰龍 | Ice Dragon
+325 | 333 | 332 | 風龍 | Storm Dragon
+326 | 334 | 333 | 地龍 | Earth Dragon
+327 | 335 | 338 | 骨骸龍 | Skull Dragon
+328 | 336 | 611 | 聖龍 | Holy Dragon
+328 | 337 | 37 | 聖龍 | Holy Dragon
+329 | 338 | 269 | 煉獄炎魔 | Inferno
+330 | 339 | 322 | 羅睺 | Rahu
+331 | 340 | 323 | 計都 | Ketu
+332 | 341 | 382 | 究極破壞炮 | Ultima Buster
+333 | 342 | 275 | 守護者 | Guardian
+334 | 343 | 296 | 魔神 | Fiend
+335 | 344 | 297 | 女神 | Goddess
+336 | 345 | 298 | 鬼神 | Demon
+337 | 346 | 344 | 眾神之像Ａ | Statue of the Gods A
+337 | 347 | 424 | 眾神之像Ａ | Statue of the Gods A
+338 | 348 | 345 | 眾神之像Ｂ | Statue of the Gods B
+338 | 349 | 425 | 眾神之像Ｂ | Statue of the Gods B
+339 | 350 | 346 | 眾神之像Ｃ | Statue of the Gods C
+339 | 351 | 426 | 眾神之像Ｃ | Statue of the Gods C
+340 | 352 | 347 | 眾神之像Ｄ | Statue of the Gods D
+341 | 353 | 348 | 眾神之像Ｅ | Statue of the Gods E
+342 | 354 | 349 | 眾神之像Ｆ | Statue of the Gods F
+343 | 355 | 350 | 眾神之像Ｇ | Statue of the Gods G
+344 | 356 | 351 | 眾神之像Ｈ | Statue of the Gods H
+345 | 357 | 352 | 眾神之像Ｉ | Statue of the Gods I
+346 | 358 | 299 | 凱夫卡 | Kefka

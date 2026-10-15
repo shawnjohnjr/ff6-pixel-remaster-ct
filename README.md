@@ -31,6 +31,7 @@ Independent Cheat Engine tables for separate use. This README is bilingual; some
 | [AllMagicite](FF6_PR_AllMagicite_20265119.CT) | 補齊全部 27 種魔石；不自動學會魔法 | Grants all 27 magicite; does not teach spells automatically |
 | [AllRages](FF6_PR_AllRages_20265119.CT) | 嘎嗚學會 252 種狂怒 | Teaches Gau all 252 Rages |
 | [AllLores](FF6_PR_AllLores_20265119.CT) | 斯特拉哥學會 24 招青魔法；取得尚未實測 | Teaches Strago all 24 Lores; acquisition remains untested |
+| [AllBestiary](FF6_PR_AllBestiary_20265119.CT) | 全圖鑑 346/346，並透過遊戲正常檢查圖鑑成就 | Completes the 346-entry bestiary and invokes the game's normal bestiary achievement check |
 
 ## 使用方式｜How to use
 
@@ -76,10 +77,29 @@ Tables start inactive and do not apply changes merely by opening. Disabling does
 | 全魔石／AllMagicite | 4→27，新增 23 種逐項核對；使用者確認清單與裝備／4→27, all 23 additions verified; user confirmed menu/equipment | 召喚、學習、存檔重讀、後續劇情／Summons, learning, save/reload and later events |
 | 全狂怒／AllRages | 9→252，新增 243 種且全部進度 100%；其他技能與角色資料核對不變；使用者確認清單新增且可選用／9→252, 243 learned; all at 100%; unrelated skills and character data verified unchanged; user confirmed the expanded menu is selectable | 戰鬥效果、存檔重讀／Combat effects and save/reload |
 | 全青魔法／AllLores | ID、Lua 編譯與角色未加入保護確認／IDs, Lua compilation and missing-role guard checked | 取得、選單、戰鬥、存檔重讀／Acquisition, menus, combat and save/reload |
+| 全怪物圖鑑／AllBestiary | 54→346；50% 與 100% Steam 成就解鎖且經使用者在 Steam 確認；共用圖鑑檔重讀通過／54→346; 50% and 100% Steam achievements unlocked and user-confirmed on Steam; shared-file reload passed | 完整重啟、其他帳號／系統／版本／Full restart, other accounts, systems or builds |
 
 角色清單相容性修正後，12 段程式皆成功編譯並在目前存檔做唯讀預檢：11 段通過，青魔法因斯特拉哥尚未加入而正確停止。這輪沒有重複套用其他修改。不要把部分成功實測解讀成所有劇情皆適用。
 
 After the character-record compatibility fix, all 12 Lua bodies compiled and underwent live read-only preflight: 11 passed; AllLores correctly stopped because Strago was absent. That pass did not reapply the other cheats. Successful tests of specific operations do not imply universal story compatibility.
+
+## 全圖鑑與成就實測｜Full bestiary and achievement test
+
+**已套用並解鎖：圖鑑 54/346 → 346/346；Steam 的 50% 與 100% 圖鑑成就皆由未解鎖變為已解鎖，使用者已在 Steam 成就頁確認。**
+
+**Applied and unlocked: the bestiary changed from 54/346 to 346/346. Steam's 50% and 100% bestiary achievements changed from locked to unlocked, confirmed by the user on Steam's achievement page.**
+
+此版本的 358 筆怪物／型態資料合併為 346 項。只將缺少或為零的記錄補至 1，保留原有次數與總擊破數，再用遊戲原本的 `UpdatePictureBook` 重新計算並同步。沒有直接呼叫 Steam 解鎖方法。重讀共用圖鑑檔後仍為 346/346；正式 CT 的再次啟用、預設備份及完成提示也已測試。
+
+This build groups 358 monster/form records into 346 entries. Only missing or zero records are raised to 1; existing counts and the total defeat counter are retained. The game's `UpdatePictureBook` recalculates and uploads the result without a direct Steam unlock call. A shared-bestiary file reload retained 346/346. Repeat execution, default backup creation and the delivered CT's completion message were also checked.
+
+圖鑑跨存檔共用，且會立即保存；讀取較舊角色存檔或取消勾選不會還原。請先備份整個存檔資料夾。CT 也會在 Cheat Engine 安裝目錄建立 JSON 快照；該快照供復原工具使用，不能直接覆蓋加密存檔。已解鎖的 Steam 成就不會因還原圖鑑而自動收回。
+
+The bestiary is shared across slots and saved immediately; loading an older character save or disabling the entry does not undo it. Back up the entire save folder first. The CT also writes a JSON snapshot to the Cheat Engine installation directory; this snapshot is for recovery tooling, not a replacement for an encrypted save. Restoring the bestiary does not automatically revoke unlocked Steam achievements.
+
+完整遊戲重啟、其他 Steam 帳號、系統及版本未測試。[中英雙語使用說明／Bilingual usage notes](AllBestiary-README.txt) · [實測紀錄／Validation](AllBestiary-Validation.txt) · [358 筆對照清單／358-record mapping](AllBestiary-list.txt)。
+
+A full game restart, other Steam accounts, systems and builds were not tested. The links above provide bilingual instructions, validation and the underlying mapping.
 
 ## 實作與更新｜Implementation and updates
 

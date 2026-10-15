@@ -1,0 +1,45 @@
+AllBestiary — 實測紀錄／Validation record
+2026-10-15 · Steam build 20265119 · CrossOver + Cheat Engine
+
+對照資料／Content mapping: 358 monster/form records; 346 bestiary groups.
+套用前／Before: 54/346 entries; 54 registered records; Steam progress 54.
+新增／Added or completed: 304 records at minimum count 1.
+套用後／After: 346/346 entries; 358 registered records; Steam progress 346.
+擊破數／Defeat counters: existing per-monster counts retained; total 238 unchanged.
+
+Steam API 查詢／Steam API reads
+picture_book_34: 1 -> 1
+picture_book_173: 0 -> 1
+picture_book_346: 0 -> 1
+其餘成就／Other achievements: all 34 unchanged.
+使用者確認／User confirmation: unlocked achievements visible on Steam's achievement page.
+
+持久性／Persistence
+PictureBookSaveManager.Load reloaded the shared bestiary from disk.
+346/346 and 358 records remained; no additional records were missing.
+Steam achievement states remained unlocked after that reload.
+
+資料保留／Preservation checks
+Character identities/jobs, EXP, levels, four stats, HP/MP, abilities, commands,
+equipped magicite, Gil, main-save kill counter, map, bestiary scenario flags,
+existing monster defeat counts and global total defeat counter remained unchanged.
+
+正式檔案／Delivered table
+One initially inactive entry; no load-time Lua script.
+Actual checkbox execution, default backup path and bilingual completion message checked.
+Repeated execution found 0 missing records and did not duplicate entries.
+All used game methods are located through metadata; no fixed process addresses.
+
+機制／Mechanism
+Copy the existing defeat dictionary; add minimum missing counts through
+PictureBookSaveManager.UpdateDefeatCount; verify completion from
+PictureBookClient.GetPictureBooks; save through PictureBookSaveManager.Save;
+recalculate through AchievementManager.UpdatePictureBook and upload through
+AchievementManager.UploadUserStats. Read back the states using
+SteamSDKManager.GetAllAchievementsOnPlatform (backed by Steam GetAchievement).
+No direct Steam unlock call or hard-coded achievement progress write is used.
+
+限制／Limits
+Full game restart, different Steam accounts, other operating systems/builds and
+long-term play were not tested. The verified persistence is a shared-file reload.
+Backups stay local and are not included in this public repository.
