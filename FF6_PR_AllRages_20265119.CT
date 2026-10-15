@@ -3,7 +3,7 @@
   <CheatEntries>
     <CheatEntry>
       <ID>1</ID>
-      <Description>"全狂怒技：嘎嗚 252 種（實驗版；角色正式加入後在地圖執行）"</Description>
+      <Description>"全狂怒技：嘎嗚 252 種｜All 252 Rages（已實測取得／Acquisition verified）"</Description>
       <VariableType>Auto Assembler Script</VariableType>
       <AssemblerScript>[ENABLE]
 {$lua}
@@ -367,6 +367,23 @@ local function snapshot()
  end
  return result
 end
+local preserved={}
+local function capture(address)
+ local n=readInteger(address);assert(n~=nil,'Cannot capture state');preserved[#preserved+1]={address,n}
+end
+capture(save+fld(us,'owendGil','System.Int32').offset)
+local psClass=cls('Last.Data.User','PlayerCharacterParameterSaveData')
+for _,ch in pairs(chars) do
+ capture(ch.save+fld(cs,'currentExp','System.Int32').offset)
+ local p=ptr(ch.object+fld(cc,'parameter').offset,pc)
+ local ps=ptr(p+fld(pc,'saveData').offset,psClass)
+ for _,name in ipairs({'&lt;BaseLevel&gt;k__BackingField','currentHP','currentMP','&lt;BasePower&gt;k__BackingField','&lt;BaseAgility&gt;k__BackingField','&lt;BaseVitality&gt;k__BackingField','&lt;BaseMagic&gt;k__BackingField'}) do capture(p+fld(pc,name,'System.Int32').offset) end
+ for _,name in ipairs({'addtionalPower','addtionalAgility','addtionalVitality','addtionalMagic'}) do
+  capture(ps+fld(psClass,name,'System.Int32').offset)
+ end
+end
+
+
 local before=snapshot();local target
 for id,ch in pairs(roster()) do
  if ch.status==requiredStatus and ch.job==requiredJob then assert(not target,'Duplicate target role');target=ch end
@@ -386,7 +403,10 @@ local function verify(final)
   for i,v in ipairs(old.commands) do assert(now.commands[i]==v,'Command list changed') end
   for aid,record in pairs(old.abilities) do
    local v=assert(now.abilities[aid],'Existing ability removed')
-   assert(v.content==record.content and v.skill==record.skill,'Existing ability record changed')
+   assert(v.content==record.content,'Existing ability content changed')
+   if id==targetId and allowed[aid] then
+    assert(v.skill&gt;=record.skill and (not final or v.skill&gt;=100),'Target skill learning incomplete')
+   else assert(v.skill==record.skill,'Unrelated ability changed') end
   end
   for aid,v in pairs(now.abilities) do
    if not old.abilities[aid] then
@@ -397,13 +417,16 @@ local function verify(final)
  if final then
   for _,v in ipairs(skills) do
    local a=assert(after[targetId].abilities[v[1]],'Expected skill missing: '..v[3])
-   assert(a.content==v[2],'Content mismatch: '..v[3])
+   assert(a.content==v[2] and a.skill&gt;=100,'Skill not fully learned: '..v[3])
   end
  end
+ for _,v in ipairs(preserved) do assert(readInteger(v[1])==v[2],'Gil, level, EXP, stats or HP/MP changed') end
  return after
 end
 if FF6_SKILL_READ_ONLY then
- print('PREFLIGHT',roleName,targetId,#skills)
+ local learned,zero,absent=0,0,0
+ for _,v in ipairs(skills) do local a=before[targetId].abilities[v[1]]; if not a then absent=absent+1 elseif a.skill&lt;100 then zero=zero+1 else learned=learned+1 end end
+ print('PREFLIGHT',roleName,targetId,#skills,'learned',learned,'incomplete',zero,'missing',absent)
  return
 end
 local client=mono_object_new(clientClass)
@@ -412,14 +435,15 @@ call(ctor,client)
 local added=0
 for _,v in ipairs(skills) do
  local current=abilityRecords(assert(roster()[targetId]).object)
- if not current[v[1]] then
+ if not current[v[1]] or current[v[1]].skill&lt;100 then
   local result=call(learn,client,{targetId,v[1]})
   local updated=abilityRecords(assert(roster()[targetId]).object)
-  assert(updated[v[1]] and updated[v[1]].content==v[2],'Learning failed: '..v[3])
+  assert(updated[v[1]] and updated[v[1]].content==v[2] and updated[v[1]].skill&gt;=100,'Learning failed: '..v[3])
   added=added+1
  end
 end
 verify(true)
+for _,v in ipairs(skills) do local a=abilityRecords(target.object)[v[1]];print('SKILL VERIFIED',v[1],v[2],a.skill) end
 print('VERIFIED',roleName,#skills,'skills;',added,'new; original character abilities and commands preserved')
 
 showMessage("技能記錄已核對完成。請重開技能選單確認，另存新欄位。取消勾選不會還原。")

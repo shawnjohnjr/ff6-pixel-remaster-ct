@@ -1,116 +1,103 @@
-# FF6 Pixel Remaster Cheat Engine Tables
+# FF6 Pixel Remaster Cheat Engine Tables｜作弊表
 
-Steam build **20265119**. Tested on 2026-10-14 through CrossOver.
+**Steam build 20265119 · CrossOver · 驗證日期／Validation dates: 2026-10-14–15**
 
-| Table | Function |
-|---|---|
-| [Gil1000000](FF6_PR_Gil1000000_20265119.CT) | Set Gil to 1,000,000 |
-| [TopEquipment](FF6_PR_TopEquipment_20265119.CT) | Grant 62 equipment types; weapons to 8, armor/accessories to 4 |
-| [Level99](FF6_PR_Level99_20265119.CT) | Current permanent party members to Lv99, including normal growth |
+獨立 CT 檔案，依需要分開使用。README 提供中英雙語；部分附加清單與舊版使用說明仍以繁體中文撰寫。
 
-FF6 Pixel Remaster — Cheat Engine CT
-Steam build 20265119
+Independent Cheat Engine tables for separate use. This README is bilingual; some supplementary lists and older usage notes remain in Traditional Chinese.
 
-檔案
-Gil1000000：將金錢設為 1,000,000 Gil。若原本金錢更多，也會降至此值。
-TopEquipment：62 種頂級與實用裝備，武器總持有量補至 8、防具飾品補至 4；原有數量更多則保留。裝備放入背包，請自行穿戴。
-Level99：目前隊伍的永久角色升到 Lv99，同步經驗值與遊戲正常升級成長。未加入目前隊伍的角色不變，臨時客串角色不支援。
+## 相容性與需求｜Compatibility and requirements
 
-使用
-1. 先備份存檔，讀取存檔並停在一般地圖上，暫停操作。
-2. Cheat Engine 連接 FINAL FANTASY VI.exe。
-3. 開啟需要的 CT，勾選一次，等待完成提示。
-4. 重新開啟選單核對，確認後另存新欄位。
+- 僅針對 Steam build **20265119**；其他版本會停止，不宣稱支援所有更新版本。仍需要 Cheat Engine Mono collector。
 
-檔案預設未勾選，不會在開啟時自動修改。三項可分別使用。取消勾選不會還原修改；要還原請讀取修改前存檔。版本不符或資料檢查失敗會停止。若失敗發生於修改過程，先前已成功修改的部分不會自動撤銷。
+  Targets Steam build **20265119** only. Other builds are rejected. Cheat Engine's Mono collector is still required.
+- 遊戲有 **14 名正式角色**，但內部清單可包含更多臨時與歷史記錄。CT 依正式角色身分辨識修改對象，不把記錄編號當作角色身分。
 
-實測紀錄
-2026-10-14：在使用者已開啟的 FF6 中測試，三項程式資料核對通過。
-金錢：5,223 → 1,000,000。
-裝備：62 種數量逐項核對通過。
-艾德加：Lv7 → Lv99，最大 HP 9,796，最大 MP 996。
-蒂娜：Lv5 → Lv99，最大 HP 9,788，最大 MP 999。
-使用者確認：金錢、兩名角色 Lv99 與裝備背包皆正確顯示，遊戲操作正常。
-僅測試當時的兩名隊伍角色；未測試所有角色、魔石加成組合或每件裝備的戰鬥效果。
+  The game has **14 permanent playable roles**, but its internal list can include additional guest and historical records. Character edits identify the actual role rather than treating a record ID as a character identity.
+- 已修正早期最多 16 筆角色記錄的假設；目前 24 筆記錄的存檔已通過唯讀預檢。這不代表已驗證全部劇情與角色組合。
 
-技術說明
-採用欄位讀取驗證物件，移除原本動態物件類別查詢；函式依實際類別到父類別順序查找，避免誤選父類別同名方法。金錢直接寫入已驗證欄位；裝備與升級使用遊戲原有處理流程。因此裝備與升級仍需要 Cheat Engine Mono collector，不宣稱完全不依賴 Mono。
-初版檢查曾出現 Mono 逾時；調整後的唯讀預檢和三項實際套用均完成，沒有逾時。不能據此保證所有執行環境都不會逾時。
+  The original 16-record assumption has been removed. Read-only preflight passed on the current save with 24 records. This does not establish compatibility with every story event or party combination.
 
+## 檔案與用途｜Tables and effects
 
-## Equipment list
-
-See [equipment-list.txt](equipment-list.txt).
-
-## All Rages and All Lores - separate experimental tables
-
-| Table | Function | Validation |
+| CT | 中文 | English |
 |---|---|---|
-| [AllRages](FF6_PR_AllRages_20265119.CT) | 252 Rages for Gau | IDs and missing-role guard verified; acquisition untested |
-| [AllLores](FF6_PR_AllLores_20265119.CT) | 24 Lores for Strago | IDs and missing-role guard verified; acquisition untested |
+| [Gil1000000](FF6_PR_Gil1000000_20265119.CT) | 金錢設為 1,000,000；原本更多也會降至此值 | Sets Gil to 1,000,000, including reducing a higher balance |
+| [TopEquipment](FF6_PR_TopEquipment_20265119.CT) | 62 種裝備：武器補至 8，防具／飾品補至 4；更多則保留 | Tops up 62 equipment types: weapons to 8, armor/relics to 4; preserves higher totals |
+| [Level99](FF6_PR_Level99_20265119.CT) | 目前隊伍正式角色升至 Lv99，包含正常升級成長 | Raises current permanent party members to Lv99 using normal level growth |
+| [StatsBoost](FF6_PR_StatsBoost_20265119.CT) | 四項能力各加 1–30，預設 +10，自然能力上限 128 | Adds 1–30 to Strength, Speed, Stamina and Magic; default +10, natural-stat cap 128 |
+| [Supplies](FF6_PR_Supplies_20265119.CT) | 特級乙太、終極萬靈藥、傳送石、魔石碎片，各自選擇補至 1–99 | Separate target totals of 1–99 for X-Ether, Megalixir, Teleport Stone and Magicite Shard |
+| [TerraUltimaQuick](FF6_PR_TerraUltimaQuick_20265119.CT) | 僅讓蒂娜學會究極與神速 | Teaches only Ultima and Quick to Terra |
+| [AllMagicite](FF6_PR_AllMagicite_20265119.CT) | 補齊全部 27 種魔石；不自動學會魔法 | Grants all 27 magicite; does not teach spells automatically |
+| [AllRages](FF6_PR_AllRages_20265119.CT) | 嘎嗚學會 252 種狂怒 | Teaches Gau all 252 Rages |
+| [AllLores](FF6_PR_AllLores_20265119.CT) | 斯特拉哥學會 24 招青魔法；取得尚未實測 | Teaches Strago all 24 Lores; acquisition remains untested |
 
-FF6 Pixel Remaster - All Rages / All Lores (EXPERIMENTAL)
-Steam build 20265119
+## 使用方式｜How to use
 
-AllRages: 252 normally learnable Rages for Gau. Checked against this build's
-monster-to-skill dictionary: 253 mappings, 252 unique skills. Hidden entries
-excluded by the game's mapping are not included.
-AllLores: 24 Lores for Strago. Enemy-only variants are excluded.
+1. 備份存檔，讀取遊戲，停在一般地圖上並暫停操作。
+   Back up your save, load the game, and stop moving on a normal field map.
+2. Cheat Engine 連接 `FINAL FANTASY VI.exe`，開啟需要的 CT。
+   Attach Cheat Engine to `FINAL FANTASY VI.exe` and open the desired CT.
+3. 勾選項目一次，依提示輸入數值，等待完成。
+   Enable the desired entry once, enter any requested value, and wait for completion.
+4. 重新開啟相關遊戲選單核對，確認後另存新欄位。
+   Reopen the relevant in-game menu to verify the result, then save into a different slot.
 
-Back up your save. After the appropriate permanent character has joined,
-load the save, stop on a normal field map, and attach Cheat Engine to
-FINAL FANTASY VI.exe. Open the desired table and enable its single entry.
-Reopen the skill menu to verify, then save into a different slot.
+檔案預設未啟用，開啟 CT 不會自動套用。取消勾選不會還原；要完整還原請讀取原存檔。下次執行先取消勾選再勾選。除非個別表明確說明，途中失敗不會自動撤銷已完成的修改。
 
-Each table is independent and initially inactive. If the correct character
-has not joined, it stops with ROLE_NOT_READY. It identifies the actual role
-instead of modifying opening-sequence Moogle placeholders by character ID.
-Already learned skills are skipped. Disabling does not undo additions.
+Tables start inactive and do not apply changes merely by opening. Disabling does not undo changes; reload the original save to undo them fully. Uncheck and recheck to run again. Unless explicitly documented for a particular table, a failure does not automatically roll back earlier completed changes.
 
-Validation on 2026-10-14:
-- Skill/content IDs checked for all 252 Rages and 24 Lores.
-- Both missing-role guards tested in the live game. Gil, character identity,
-  jobs, EXP, ability records, and command order remained unchanged.
-- Gau and Strago are not yet present as their permanent roles in this save.
-  Actual acquisition, skill menus, save/reload persistence, and combat effects
-  have NOT been tested. These tables are experimental, unlike the previously
-  applied and user-confirmed Gil, equipment, and Lv99 tables.
+## 行為細節｜Behavior notes
 
-Implementation uses OwnedCharacterClient.LearningAbility and checks the
-resulting skill/content records, preserving existing character identity,
-job, EXP, ability records, and command order. Mono collector is required.
-A failure partway through acquisition does not roll back earlier additions;
-reload your original save to undo them.
+- **Lv99／能力提升：**兩份分開。Lv99 不會把力量、敏捷、體力、魔力補滿，也不補發歷史魔石加成。能力提升不改等級／經驗值，每次啟用再次累加；遇到隊伍臨時角色會停止。
 
+  **Lv99 / stat boosts:** Separate tables. Lv99 does not maximize the four stats or retroactively award esper bonuses. Stat boosts preserve level/EXP and stack on repeated activation. Temporary party roles are rejected.
+- **補給：**輸入的是目標總數，不是額外增加數量；目前更多則保留。按取消不補給。
 
-Lists: [Rages](AllRages-list.txt), [Lores](AllLores-list.txt).
+  **Supplies:** The input is a target total, not an amount to add. Higher existing totals are preserved. Cancelling does not replenish anything.
+- **魔石：**保留原有項目與順序，包含奧汀與萊汀。不自動裝備，不直接改劇情旗標；後續事件相容性未完整驗證。失敗會嘗試移除本次新增項目。
 
-## Selectable supplies
+  **Magicite:** Preserves existing entries/order and includes both Odin and Raiden. Does not equip magicite or directly edit story flags. Later event compatibility is not fully verified. On failure it attempts to remove this run's additions.
+- **技能：**只操作指定正式角色，未加入時以 `ROLE_NOT_READY` 停止。跳過已精通技能；已有記錄但進度為 0% 或未完成的技能仍需補學，不能只以「記錄存在」判定完成。
 
-[Supplies CT](FF6_PR_Supplies_20265119.CT) contains four independent entries: X-Ether, Megalixir, Teleport Stone, and Magicite Shard. Each prompts for a target total from 1 to 99 (default 99). Existing higher quantities are preserved. Uncheck and recheck an entry to replenish again.
+  **Skills:** Targets only the specified permanent role and stops with `ROLE_NOT_READY` if absent. Mastered skills are skipped. Existing records at 0% or incomplete progress still need learning; record existence alone does not establish mastery.
+- **狂怒／青魔法：**252 種狂怒依此版本的 253 筆怪物對照去重，不包含對照外隱藏技能；青魔法只含 24 招玩家技能。
 
-All four supplies were added from 0 to 99 and individually verified in the live game; each operation preserved the other three supplies and Gil. The actual CT menu, target quantity prompt, default value, and cancellation were also checked. Item effects and save/reload persistence were not tested. See [usage notes](Supplies-README.txt).
+  **Rages / Lores:** The 252 Rages are deduplicated from this build's 253 monster mappings; unmapped hidden skills are excluded. Lores include only the 24 player skills.
 
-## Adjustable stat boost (not applied in game)
+## 驗證範圍｜Validation scope
 
-[StatsBoost CT](FF6_PR_StatsBoost_20265119.CT) increases Strength, Speed, Stamina, and Magic for the current permanent party. Enter an amount from 1 to 30 (default +10), capped at 128 natural stats. It is separate from Level99 and preserves level and EXP. Each activation adds another boost; disabling does not undo it.
+| 功能／Feature | 實際驗證／Observed validation | 尚未驗證／Not tested |
+|---|---|---|
+| 金錢、裝備、Lv99／Gil, equipment, Lv99 | 實際套用，使用者確認顯示及操作正常／Applied; user confirmed menus and normal operation | 全部角色與裝備戰鬥效果／Every character and equipment combat effect |
+| 補給／Supplies | 四項各 0→99；互不影響且金錢不變；輸入與取消介面確認／All four 0→99; other supplies/Gil preserved; input and cancellation checked | 道具使用效果、存檔重讀／Item effects and save/reload |
+| 能力提升／StatsBoost | 四名隊伍角色、16 項能力唯讀預檢通過／Read-only preflight passed for 16 fields across four party members | 寫入、戰鬥、存檔重讀／Writes, combat and save/reload |
+| 蒂娜魔法／Terra spells | 究極保留 100%；神速 0→100%；使用者確認兩招可選用／Ultima stayed 100%; Quick 0→100%; user confirmed both selectable | 戰鬥施法、存檔重讀／Combat casts and save/reload |
+| 全魔石／AllMagicite | 4→27，新增 23 種逐項核對；使用者確認清單與裝備／4→27, all 23 additions verified; user confirmed menu/equipment | 召喚、學習、存檔重讀、後續劇情／Summons, learning, save/reload and later events |
+| 全狂怒／AllRages | 9→252，新增 243 種且全部進度 100%；其他技能與角色資料核對不變；使用者確認清單新增且可選用／9→252, 243 learned; all at 100%; unrelated skills and character data verified unchanged; user confirmed the expanded menu is selectable | 戰鬥效果、存檔重讀／Combat effects and save/reload |
+| 全青魔法／AllLores | ID、Lua 編譯與角色未加入保護確認／IDs, Lua compilation and missing-role guard checked | 取得、選單、戰鬥、存檔重讀／Acquisition, menus, combat and save/reload |
 
-The earlier read-only preflight resolved the four stat fields for the current two characters. This adjustable table has structural checks only and has **not been applied or tested for writes, combat, or save/reload persistence**, at the user's request. See [Chinese usage notes](StatsBoost-README.txt).
+角色清單相容性修正後，12 段程式皆成功編譯並在目前存檔做唯讀預檢：11 段通過，青魔法因斯特拉哥尚未加入而正確停止。這輪沒有重複套用其他修改。不要把部分成功實測解讀成所有劇情皆適用。
 
-## Terra: Ultima and Quick
+After the character-record compatibility fix, all 12 Lua bodies compiled and underwent live read-only preflight: 11 passed; AllLores correctly stopped because Strago was absent. That pass did not reapply the other cheats. Successful tests of specific operations do not imply universal story compatibility.
 
-[Separate Terra CT](FF6_PR_TerraUltimaQuick_20265119.CT) teaches only Ultima and Quick to the permanent Terra role. Already mastered spells are skipped; partial learning is completed through the game's LearningAbility method. It does not grant magicite or change story progress.
+## 實作與更新｜Implementation and updates
 
-Applied to the live game on 2026-10-14: Ultima remained at 100%; Quick changed from 0% to 100%. Unrelated ability records, commands, identities, jobs, EXP, Gil, levels, four stats, and HP/MP were checked unchanged. The learning script matches the delivered CT; combat and save/reload persistence are untested, and the user confirmed both spells appeared and were selectable in the magic menu. [Chinese usage notes](TerraUltimaQuick-README.txt).
+使用 IL2CPP／Mono metadata 定位欄位與方法，依實際類別再往父類別查找同名方法。物件以欄位及類別指標核對，避免先前造成逾時的動態物件類別查詢。裝備、升級與技能取得透過遊戲方法處理；金錢與能力加值寫入已驗證欄位。曾遇過 Mono 逾時；調整後的實測通過，但不保證其他環境不會逾時。
 
-## All 27 magicite
+Uses IL2CPP/Mono metadata to locate fields and methods, searching the actual class before its parents. Objects are checked using fields and class pointers, avoiding the dynamic class query that previously caused timeouts. Equipment, leveling and skill acquisition use game methods; Gil and stat bonuses use validated fields. Earlier Mono timeouts were addressed in the tested setup, but other environments may still time out.
 
-[AllMagicite CT](FF6_PR_AllMagicite_20265119.CT) grants missing magicite from the exact build's 27 entries (content IDs 62–88), retaining existing entries and their order. It includes both Odin and Raiden. It does not teach character spells, equip magicite, or directly edit story flags.
+請重新下載修正版 CT；既有下載檔不會自動更新。
 
-Applied on 2026-10-15: 4 owned magicite became all 27, with 23 additions individually verified. Existing order, character identities/jobs, EXP, Gil, levels, four stats, HP/MP, abilities, commands, equipped magicite and map were verified unchanged. A subsequent read-only pass confirmed 27 owned and 0 missing. Menu/equipment confirmation is pending; summons, learning, save/reload and later story compatibility remain untested. On failure it attempts to remove only entries added by this run. [Usage notes](AllMagicite-README.txt) · [27-entry list](AllMagicite-list.txt).
+Re-download updated CT files; existing downloads do not update automatically.
 
-## Story-progress compatibility fix — 2026-10-15
+## 清單與補充說明｜Lists and supplementary notes
 
-All nine CTs now read the bounded internal character list without assuming a maximum of 16 records or tying character identity to a record ID. The current save has 24 internal records, including historical/guest records; this does not expand the game's 14 permanent playable roles. Lv99 and stat boosts validate permanent status/job identity for the current party. Role-specific skill tables retain their explicit role checks. Re-download the updated files; previously downloaded CTs do not update automatically.
-
-All 12 Lua bodies compiled and underwent live read-only preflight. Eleven passed, including current-party records with IDs above 14; AllLores correctly stopped because permanent Strago is absent. This was not a repeat application of the other cheats. New all-magicite acquisition was applied and verified; previously untested stat writes and Rage/Lore acquisition remain untested. No claim of universal story compatibility is made. [Detailed validation and limitations](Validation-20261015.txt).
+- [裝備清單／Equipment list](equipment-list.txt)
+- [狂怒清單／Rage list](AllRages-list.txt) · [青魔法清單／Lore list](AllLores-list.txt)
+- [魔石清單／Magicite list](AllMagicite-list.txt)
+- [補給說明／Supply notes](Supplies-README.txt)
+- [能力提升說明／Stat boost notes](StatsBoost-README.txt)
+- [蒂娜魔法說明／Terra spell notes](TerraUltimaQuick-README.txt)
+- [全魔石說明／All-magicite notes](AllMagicite-README.txt)
+- [角色清單相容性驗證／Character-record compatibility validation](Validation-20261015.txt)

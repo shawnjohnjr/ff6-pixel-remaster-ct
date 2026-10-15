@@ -29,3 +29,6 @@ Supplies：特級乙太、終極萬靈藥、魔石碎片與傳送石四項均通
 限制
 這是同一版本、目前存檔的核對，不代表所有劇情、角色組合、戰鬥或存檔重讀皆已驗證。
 舊檔案不會自動更新，請改用本次重新下載的修正版 CT。
+
+後續更新／Later update：嘎嗚狂怒已由 9 種補至 252 種，243 種 0% 記錄補為 100%，全數逐項核對並經使用者確認清單可選用。
+Gau now has 252 mastered Rages (up from 9); 243 records were completed from 0% to 100%, individually verified, and confirmed selectable by the user. Combat effects and save/reload remain untested.
