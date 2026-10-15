@@ -32,6 +32,7 @@ Independent Cheat Engine tables for separate use. This README is bilingual; some
 | [AllRages](FF6_PR_AllRages_20265119.CT) | 嘎嗚學會 252 種狂怒 | Teaches Gau all 252 Rages |
 | [AllLores](FF6_PR_AllLores_20265119.CT) | 斯特拉哥學會 24 招青魔法；取得尚未實測 | Teaches Strago all 24 Lores; acquisition remains untested |
 | [AllBestiary](FF6_PR_AllBestiary_20265119.CT) | 全圖鑑 346/346，並透過遊戲正常檢查圖鑑成就 | Completes the 346-entry bestiary and invokes the game's normal bestiary achievement check |
+| [ChestAchievements](FF6_PR_ChestAchievements_20265119.CT) | 只解寶箱成就：暫補 214 旗標、檢查後還原；不領取道具 | Chest achievements only: temporarily complete 214 flags, check, then restore; no loot |
 
 ## 使用方式｜How to use
 
@@ -43,6 +44,10 @@ Independent Cheat Engine tables for separate use. This README is bilingual; some
    Enable the desired entry once, enter any requested value, and wait for completion.
 4. 重新開啟相關遊戲選單核對，確認後另存新欄位。
    Reopen the relevant in-game menu to verify the result, then save into a different slot.
+
+寶箱成就 CT 完成時會自動還原寶箱旗標，只保留已解鎖的成就，不需要另存角色存檔。
+
+The chest-achievement CT automatically restores chest flags on completion, retaining unlocked achievements; no character-slot save is needed.
 
 檔案預設未啟用，開啟 CT 不會自動套用。取消勾選不會還原；要完整還原請讀取原存檔。下次執行先取消勾選再勾選。除非個別表明確說明，途中失敗不會自動撤銷已完成的修改。
 
@@ -78,6 +83,7 @@ Tables start inactive and do not apply changes merely by opening. Disabling does
 | 全狂怒／AllRages | 9→252，新增 243 種且全部進度 100%；其他技能與角色資料核對不變；使用者確認清單新增且可選用／9→252, 243 learned; all at 100%; unrelated skills and character data verified unchanged; user confirmed the expanded menu is selectable | 戰鬥效果、存檔重讀／Combat effects and save/reload |
 | 全青魔法／AllLores | ID、Lua 編譯與角色未加入保護確認／IDs, Lua compilation and missing-role guard checked | 取得、選單、戰鬥、存檔重讀／Acquisition, menus, combat and save/reload |
 | 全怪物圖鑑／AllBestiary | 54→346；50% 與 100% Steam 成就解鎖且經使用者在 Steam 確認；共用圖鑑檔重讀通過／54→346; 50% and 100% Steam achievements unlocked and user-confirmed on Steam; shared-file reload passed | 完整重啟、其他帳號／系統／版本／Full restart, other accounts, systems or builds |
+| 寶箱成就／ChestAchievements | 暫時 38→214→還原 38；隱藏道具 9 不變；50% 與 100% Steam 成就解鎖且使用者確認；完整旗標與地圖資料一致／Temporary 38→214→restored 38; hidden items remain 9; 50%/100% unlocks user-confirmed on Steam; exact flag/map restoration | 完整重啟、其他帳號／版本、還原後開箱／Full restart, other accounts/builds, opening a chest afterward |
 
 角色清單相容性修正後，12 段程式皆成功編譯並在目前存檔做唯讀預檢：11 段通過，青魔法因斯特拉哥尚未加入而正確停止。這輪沒有重複套用其他修改。不要把部分成功實測解讀成所有劇情皆適用。
 
@@ -100,6 +106,24 @@ The bestiary is shared across slots and saved immediately; loading an older char
 完整遊戲重啟、其他 Steam 帳號、系統及版本未測試。[中英雙語使用說明／Bilingual usage notes](AllBestiary-README.txt) · [實測紀錄／Validation](AllBestiary-Validation.txt) · [358 筆對照清單／358-record mapping](AllBestiary-list.txt)。
 
 A full game restart, other Steam accounts, systems and builds were not tested. The links above provide bilingual instructions, validation and the underlying mapping.
+
+## 寶箱成就與旗標還原｜Chest achievements with flag restoration
+
+**已實測並由使用者在 Steam 確認：50% 與 100% 寶箱收集成就均已解鎖。寶箱進度為 38 → 暫時 214 → 還原 38，隱藏道具維持 9。**
+
+**Tested and confirmed by the user on Steam: both 50% and 100% chest achievements unlocked. Chest progress was 38 → temporarily 214 → restored 38; hidden items remained at 9.**
+
+此獨立 CT 的標題直接註明「暫時補齊 214 旗標→檢查成就→還原寶箱｜不領取道具」。依本版資料去重取得 214 個寶箱旗標，暫時設為完成，呼叫遊戲原本的 `UpdateChest`，立即還原完整 512 bytes 旗標陣列並核對完整序列化地圖資料一致，再上傳 Steam。沒有直接呼叫 Steam 解鎖方法、不補發道具、不永久全開，也不解鎖隱藏道具成就。
+
+The standalone CT title describes its full effect: temporarily complete 214 flags, check achievements, restore chests, no loot. It targets this build's 214 distinct chest flags, invokes the game's `UpdateChest`, immediately restores all 512 bytes of treasure flags and verifies an exact serialized-map match before uploading Steam stats. It does not directly call a Steam unlock method, grant loot, permanently open chests or target hidden-item achievements.
+
+遊戲的寶箱進度保持原值，Steam 的 `treasure_box` 統計可為 214；這是保留探索進度的設計。執行期間請保持一般地圖靜止，不要移動、切換地圖、存檔或關閉工具。一般方法錯誤也會執行還原，但突然終止程序無法保證清理完成。先備份完整存檔資料夾；CT 另於 Cheat Engine 安裝目錄建立明文地圖快照，不能直接取代加密存檔。
+
+The in-game chest count stays at its original value while Steam's `treasure_box` stat can read 214; this intentionally retains exploration progress. Stay idle on a normal field map; do not move, change maps, save or close the tool during execution. Ordinary method errors run cleanup, but an abrupt process termination can prevent it. Back up the full save folder first. The CT also creates a plaintext map snapshot in the Cheat Engine installation directory; it cannot directly replace an encrypted save.
+
+正式 CT 的勾選執行、預設備份、完成提示及重複執行已驗證。完整遊戲重啟、其他帳號／系統／版本及還原後實際開箱未測試。[中英雙語說明／Bilingual notes](ChestAchievements-README.txt) · [實測紀錄／Validation](ChestAchievements-Validation.txt)。
+
+The delivered CT's checkbox execution, default backup, completion dialog and repeat execution were verified. A full restart, other accounts/systems/builds and actually opening a chest afterward were not tested. See the bilingual notes and validation linked above.
 
 ## 實作與更新｜Implementation and updates
 

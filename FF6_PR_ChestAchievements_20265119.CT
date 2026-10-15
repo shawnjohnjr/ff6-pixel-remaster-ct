@@ -1,0 +1,290 @@
+<?xml version='1.0' encoding='utf-8'?>
+<CheatTable CheatEngineTableVersion="45">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"寶箱全收集成就｜暫時補齊 214 旗標→檢查成就→還原寶箱｜不領取道具 / Chest achievements: temporary 214 flags, check, restore; no loot"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+local FF6_CHESTS_READ_ONLY=false
+
+assert(getOpenedProcessID()~=0,'Attach to FINAL FANTASY VI.exe')
+local base=getAddressSafe('GameAssembly.dll');assert(base,'GameAssembly.dll missing')
+local pe=base+readInteger(base+60)
+assert(readInteger(pe+8)==1745316249 and readInteger(pe+80)==42369024,'Requires FF6 PR Steam build 20265119')
+assert(LaunchMonoDataCollector(),'Mono collector unavailable')
+local classes,fields,methods={},{},{}
+local function cls(ns,n)
+ local key=ns..'.'..n
+ if not classes[key] then local c=mono_findClass(ns,n);assert(c and c~=0,'Class missing: '..key);classes[key]=c end
+ return classes[key]
+end
+local function fld(c,n,t)
+ if not fields[c] then fields[c]=assert(mono_class_enumFields(c,true),'Field lookup failed') end
+ for _,v in ipairs(fields[c]) do if v.name==n then assert(not t or v.typename==t,'Field type mismatch: '..n);return v end end
+ error('Missing field '..n)
+end
+local function meth(c,n,sig)
+ local current=c
+ while current and current~=0 do
+  if not methods[current] then methods[current]=assert(mono_class_enumMethods(current),'Method lookup failed') end
+  for _,m in ipairs(methods[current]) do if m.name==n and mono_method_getSignature(m.method)==sig then return m.method end end
+  current=mono_class_getParent(current)
+ end
+ error('Missing method '..n..' ('..sig..')')
+end
+local function call(m,o,args)
+ local r,e=mono_invoke_method(0,m,o or 0,args or {});assert(e==nil,tostring(e));return r
+end
+local function ptr(a,c)
+ local p=readPointer(a);assert(p and p&gt;65536,'Invalid pointer')
+ if c then assert(readPointer(p)==c,'Object type mismatch') end
+ return p
+end
+local function list(o,max)
+ local n=readInteger(o+0x18);local a=ptr(o+0x10)
+ assert(n and n&gt;=0 and n&lt;=max,'Invalid list count')
+ local capacity=readInteger(a+0x18);assert(capacity and capacity&gt;=n and capacity&lt;=512,'Invalid capacity')
+ local r={};for i=0,n-1 do r[#r+1]=ptr(a+0x20+i*8) end;return r
+end
+local um=cls('Last.Management','UserDataManager')
+local u=mono_class_getStaticFieldValue(um,fld(um,'instance').field)
+assert(type(u)=='number' and u&gt;65536 and readPointer(u)==um,'Load a save first')
+local us=cls('Last.Data.User','UserSaveData')
+local save=ptr(u+fld(um,'saveData').offset,us)
+local cc=cls('Last.Data.User','OwnedCharacterData')
+local cs=cls('Last.Data.User','OwnedCharacterSaveData')
+local pc=cls('Last.Data','PlayerCharacterParameter')
+local chars={}
+for _,ch in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),512)) do
+ assert(readPointer(ch)==cc,'Unexpected character')
+ local s=ptr(ch+fld(cc,'saveData').offset,cs)
+ local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+ assert(id and id&gt;=1 and not chars[id],'Invalid character ID')
+ chars[id]={object=ch,save=s,id=id}
+end
+local corps=cls('Last.Data.User','Corps');local corpsSave=cls('Last.Data.User','CorpsSaveData')
+local party={};local seen={}
+for _,o in ipairs(list(ptr(u+fld(um,'&lt;corpsList&gt;k__BackingField').offset),4)) do
+ assert(readPointer(o)==corps,'Unexpected party slot')
+ local s=ptr(o+fld(corps,'saveData').offset,corpsSave)
+ local id=readInteger(s+fld(corpsSave,'characterId','System.Int32').offset)
+ assert(id and id&gt;=0,'Invalid party ID')
+ if id~=0 then assert(chars[id] and not seen[id],'Invalid or repeated party character');seen[id]=true;party[#party+1]=chars[id] end
+end
+assert(#party&gt;0,'Load a save and stop on the map')
+
+
+local chestFlags={1,2,4,5,6,7,8,9,11,12,13,14,15,16,17,27,28,29,30,31,32,33,34,35,36,37,38,39,43,44,45,46,49,50,52,54,55,56,60,65,66,70,71,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,94,95,96,97,98,99,100,101,102,103,104,106,107,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,272}
+local preserved={}
+local function capture(address)
+ local n=readInteger(address);assert(n~=nil,'Cannot capture state');preserved[#preserved+1]={address,n}
+end
+capture(save+fld(us,'owendGil','System.Int32').offset)
+local psClass=cls('Last.Data.User','PlayerCharacterParameterSaveData')
+for _,ch in pairs(chars) do
+ capture(ch.save+fld(cs,'currentExp','System.Int32').offset)
+ local p=ptr(ch.object+fld(cc,'parameter').offset,pc)
+ local ps=ptr(p+fld(pc,'saveData').offset,psClass)
+ for _,name in ipairs({'&lt;BaseLevel&gt;k__BackingField','currentHP','currentMP','&lt;BasePower&gt;k__BackingField','&lt;BaseAgility&gt;k__BackingField','&lt;BaseVitality&gt;k__BackingField','&lt;BaseMagic&gt;k__BackingField'}) do capture(p+fld(pc,name,'System.Int32').offset) end
+ for _,name in ipairs({'addtionalPower','addtionalAgility','addtionalVitality','addtionalMagic'}) do
+  capture(ps+fld(psClass,name,'System.Int32').offset)
+ end
+end
+
+
+for _,ch in pairs(chars) do capture(ch.save+fld(cs,'magicStoneId','System.Int32').offset) end
+capture(save+fld(us,'monstersKilledCount','System.Int32').offset)
+for _,name in ipairs({'&lt;CurrentAreaType&gt;k__BackingField','&lt;CurrentAreaId&gt;k__BackingField','&lt;CurrentMapId&gt;k__BackingField'}) do capture(u+fld(um,name).offset) end
+
+local function roster()
+ local result={}
+ for _,o in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),512)) do
+  assert(readPointer(o)==cc,'Invalid character object')
+  local s=ptr(o+fld(cc,'saveData').offset,cs)
+  local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+  assert(id and id&gt;=1 and not result[id],'Invalid character ID')
+  result[id]={object=o,save=s,id=id,status=readInteger(s+fld(cs,'characterStatusId','System.Int32').offset),job=readInteger(s+fld(cs,'jobId','System.Int32').offset)}
+ end
+ return result
+end
+local ac=cls('Last.Data.User','OwnedAbility');local ass=cls('Last.Data.User','OwnedAbilitySaveData')
+local function abilityRecords(o)
+ local records={}
+ for _,v in ipairs(list(ptr(o+fld(cc,'&lt;OwnedAbilityList&gt;k__BackingField').offset),512)) do
+  assert(readPointer(v)==ac,'Invalid ability object')
+  local s=ptr(v+fld(ac,'saveData').offset,ass)
+  local id=readInteger(s+fld(ass,'abilityId','System.Int32').offset)
+  local cid=readInteger(s+fld(ass,'contentId','System.Int32').offset)
+  local skill=readInteger(s+fld(ass,'skillLevel','System.Int32').offset)
+  assert(id and id&gt;0 and cid and cid&gt;0 and skill and not records[id],'Invalid or duplicate ability record')
+  records[id]={content=cid,skill=skill}
+ end
+ return records
+end
+local function snapshot()
+ local result={}
+ for id,ch in pairs(roster()) do
+  result[id]={status=ch.status,job=ch.job,exp=readInteger(ch.save+fld(cs,'currentExp','System.Int32').offset),abilities=abilityRecords(ch.object),commands=list(ptr(ch.object+fld(cc,'&lt;CommandList&gt;k__BackingField').offset),64)}
+ end
+ return result
+end
+local function textValue(p)
+ if type(p)=='string' then return p end
+ assert(type(p)=='number' and p&gt;65536,'Invalid string pointer')
+ local n=readInteger(p+16);assert(n and n&gt;=0 and n&lt;=1000000,'Invalid string length')
+ return assert(readString(p+20,n*2,true),'Cannot read string')
+end
+local function readIntList(o,max)
+ local n=readInteger(o+24);local a=ptr(o+16);local capacity=readInteger(a+24)
+ assert(n and n&gt;=0 and n&lt;=max and capacity and capacity&gt;=n and capacity&lt;=8192,'Invalid integer list')
+ local r={};for i=0,n-1 do r[#r+1]=readInteger(a+32+i*4) end;return r
+end
+local function equalLists(a,b)
+ assert(#a==#b,'List size changed');for i,v in ipairs(a) do assert(b[i]==v,'List contents changed') end
+end
+local function dictionary(o,stringKeys)
+ local c=readPointer(o)
+ local n=readInteger(o+fld(c,'count','System.Int32').offset)
+ local free=readInteger(o+fld(c,'freeCount','System.Int32').offset)
+ assert(n and n&gt;=0 and n&lt;=2048 and free and free&gt;=0 and free&lt;=n,'Invalid dictionary count')
+ local a=readPointer(o+fld(c,'entries').offset)
+ if n==0 then return {},0 end
+ assert(a and a&gt;65536,'Dictionary entries missing')
+ local capacity=readInteger(a+24);assert(capacity and capacity&gt;=n and capacity&lt;=4096,'Invalid dictionary capacity')
+ local result={};local count=0;local stride=stringKeys and 24 or 16
+ for i=0,n-1 do
+  local e=a+32+i*stride;local hash=readInteger(e)
+  if hash and hash&lt;2147483648 then
+   local key=stringKeys and textValue(ptr(e+8)) or readInteger(e+8)
+   local value=readInteger(e+(stringKeys and 16 or 12))
+   assert(key and value and not result[key],'Invalid or duplicate dictionary entry')
+   result[key]=value;count=count+1
+  end
+ end
+ assert(count==n-free,'Dictionary entry count mismatch')
+ return result,count
+end
+local characterBefore
+local function verifyCharacters()
+ local after=snapshot()
+ for id,old in pairs(characterBefore) do
+  local now=assert(after[id],'Character removed')
+  assert(now.status==old.status and now.job==old.job and now.exp==old.exp,'Character identity/job/EXP changed')
+  equalLists(old.commands,now.commands)
+  for aid,v in pairs(old.abilities) do local a=assert(now.abilities[aid],'Ability removed');assert(a.content==v.content and a.skill==v.skill,'Ability changed') end
+  for aid in pairs(now.abilities) do assert(old.abilities[aid],'Unexpected new ability') end
+ end
+ for id in pairs(after) do assert(characterBefore[id],'Unexpected new character') end
+ for _,v in ipairs(preserved) do assert(readInteger(v[1])==v[2],'Gil, character parameters, equipped magicite or kill counter changed') end
+end
+
+local dc=cls('Last.Interpreter','DataStorage');local data=call(meth(dc,'get_Instance',''),0)
+assert(type(data)=='number' and data&gt;65536 and readPointer(data)==dc,'Map data unavailable')
+local serialize=meth(dc,'Serialize','')
+local function mapJSON() return textValue(call(serialize,data)) end
+local mapBefore=mapJSON()
+local treasure=ptr(data+fld(dc,'treasure').offset);local fc=readPointer(treasure)
+local array=ptr(treasure+fld(fc,'bits','System.UInt32[]').offset)
+local words=readInteger(array+24);local bits=readInteger(treasure+fld(fc,'length','System.Int32').offset)
+print('TREASURE LAYOUT',words,bits);assert(words==128 and bits==1024,'Unexpected treasure flag layout')
+local address=array+32;local size=words*4
+local bytes=assert(readBytes(address,size,true),'Cannot snapshot treasure flags');assert(#bytes==size,'Incomplete flag snapshot')
+local changed={};for i,v in ipairs(bytes) do changed[i]=v end
+local missing=0
+local getFlag=meth(dc,'Get','Last.Interpreter.DataStorage.Category,System.Int32')
+for _,flag in ipairs(chestFlags) do
+ assert(flag&gt;=0 and flag&lt;bits,'Invalid chest flag')
+ local old=call(getFlag,data,{4+math.floor(flag/256),flag%256});assert(old==0 or old==1,'Invalid chest state')
+ local index=math.floor(flag/8)+1;local mask=2^(flag%8)
+ assert(math.floor(bytes[index]/mask)%2==old,'Chest flag mapping mismatch')
+ if old==0 then changed[index]=changed[index]+mask;missing=missing+1 end
+end
+local util=cls('Last.Map','TresureBoxUtility')
+local countMethod=meth(util,'GetOpenChestCount','System.Boolean')
+local hiddenMethod=meth(util,'GetOpenHiddenItemCount','System.Boolean')
+local function chestCount() return call(countMethod,0,{{type=vtByte,value=0}}) end
+local function hiddenCount() return call(hiddenMethod,0,{{type=vtByte,value=0}}) end
+local countBefore=chestCount();local hiddenBefore=hiddenCount()
+assert(countBefore==214-missing,'Chest master/flag count mismatch')
+local savedCount=readInteger(save+fld(us,'openChestCount','System.Int32').offset)
+capture(save+fld(us,'openChestCount','System.Int32').offset)
+characterBefore=snapshot()
+local stones=readIntList(ptr(u+fld(um,'&lt;OwnedMagicStoneList&gt;k__BackingField').offset),64)
+local steamClass=cls('Last.Management','SteamSDKManager')
+local steam=mono_class_getStaticFieldValue(steamClass,fld(steamClass,'instance').field)
+assert(type(steam)=='number' and steam&gt;65536 and readPointer(steam)==steamClass,'Steam integration unavailable')
+assert(readBytes(steam+fld(steamClass,'isInitialze','System.Boolean').offset,1)==1,'Steam must be initialized')
+local readSteam=meth(steamClass,'GetAllAchievementsOnPlatform','')
+local progress=meth(steamClass,'GetAchievmentProgress','System.String')
+local keys={'treasure_box_22','treasure_box_107','treasure_box_214'}
+local function achievements()
+ local states=dictionary(call(readSteam,steam),true)
+ for _,key in ipairs(keys) do assert(states[key]==0 or states[key]==1,'Treasure achievement missing: '..key) end
+ return states
+end
+local beforeSteam=achievements()
+local achClass=cls('Last.Management','AchievementManager')
+local ach=mono_class_getStaticFieldValue(achClass,fld(achClass,'instance').field)
+assert(type(ach)=='number' and ach&gt;65536 and readPointer(ach)==achClass,'Achievement manager unavailable')
+local update=meth(achClass,'UpdateChest','');local upload=meth(achClass,'UploadUserStats','')
+local function report(label,states)
+ print(label,'chests',chestCount(),'/214','hidden items',hiddenCount(),'save chest counter',readInteger(save+fld(us,'openChestCount').offset))
+ for _,key in ipairs(keys) do print(label,key,states[key]) end
+ print(label,'Steam treasure_box progress',call(progress,steam,{{type=vtString,value='treasure_box'}}))
+end
+local function verifyRestored()
+ assert(ptr(data+fld(dc,'treasure').offset)==treasure and ptr(treasure+fld(fc,'bits').offset)==array,'Map storage replaced during operation')
+ local now=readBytes(address,size,true);for i,v in ipairs(bytes) do assert(now[i]==v,'Treasure flags not restored') end
+ assert(mapJSON()==mapBefore,'Scenario/treasure/global/map state changed')
+ assert(chestCount()==countBefore and hiddenCount()==hiddenBefore,'Chest or hidden item count changed')
+ assert(readInteger(save+fld(us,'openChestCount').offset)==savedCount,'Save chest count changed')
+ equalLists(stones,readIntList(ptr(u+fld(um,'&lt;OwnedMagicStoneList&gt;k__BackingField').offset),64))
+ verifyCharacters()
+end
+report('BEFORE',beforeSteam)
+print('CHEST PLAN',countBefore,'-&gt;214-&gt;'..countBefore,'temporary flags',missing,'treasure bytes',size)
+if FF6_CHESTS_READ_ONLY then verifyRestored();print('CHESTS PREFLIGHT VERIFIED');return end
+local folder=FF6_CHESTS_BACKUP_DIR or getCheatEngineDir()
+assert(type(folder)=='string' and #folder&gt;0,'No backup directory')
+if not folder:match('[/\\]$') then folder=folder..'/' end
+local backup=folder..'FF6_ChestFlags_before_'..os.date('%Y%m%d_%H%M%S')..'_'..getTickCount()..'.json'
+local file=assert(io.open(backup,'wb'),'Cannot create chest flag backup')
+assert(file:write(mapBefore),'Cannot write chest flag backup');file:close();print('BACKUP',backup)
+-- The flag window contains no save, loot, map-refresh or upload operation.
+-- Restore in the finally path even if the game achievement check raises an error.
+local ok,err=pcall(function()
+ verifyRestored()
+ assert(writeBytes(address,changed),'Cannot set temporary chest flags')
+ assert(chestCount()==214,'Temporary chest completion is not 214/214')
+ assert(hiddenCount()==hiddenBefore,'Temporary flags affected hidden items')
+ print('TEMPORARY CHESTS',chestCount(),'/214','hidden items',hiddenCount())
+ call(update,ach)
+end)
+local restored,restoreErr=pcall(function()
+ assert(writeBytes(address,bytes),'Cannot restore treasure flag snapshot')
+ verifyRestored()
+end)
+assert(restored,'Restore failed: '..tostring(restoreErr)..'. Backup: '..backup)
+if not ok then error(tostring(err)..'. Original flags restored. Backup: '..backup) end
+local syncOK,syncError=pcall(call,upload,ach)
+local afterSteam=achievements()
+verifyRestored()
+for key,value in pairs(beforeSteam) do
+ if not key:find('treasure_box_',1,true) then assert(afterSteam[key]==value,'Unrelated Steam achievement changed: '..key) end
+end
+report('AFTER',afterSteam)
+print('CHESTS VERIFIED','flags restored',size,'chests',countBefore,'hidden',hiddenBefore,'Steam upload',syncOK,tostring(syncError))
+if not FF6_CHESTS_SILENT then
+ showMessage('寶箱成就／Chest achievements: '..(afterSteam.treasure_box_214==1 and '100% 已解鎖／Unlocked' or '尚未確認／Not confirmed')..'\n原有寶箱狀態已還原／Original chest flags restored: '..countBefore..'/214\n不領取道具／No loot granted\nBackup: '..backup)
+end
+
+{$asm}
+[DISABLE]
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols />
+</CheatTable>

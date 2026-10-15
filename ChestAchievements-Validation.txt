@@ -1,0 +1,46 @@
+ChestAchievements — 實測紀錄／Validation
+2026-10-15 · Steam build 20265119 · CrossOver + Cheat Engine
+
+獨立、只處理成就；寶箱旗標還原，不領取道具。
+Standalone achievement-only operation; original chest flags restored, no loot granted.
+
+資料對照／Master mapping
+271 treasure_box rows; type 1 has 218 rows representing 214 distinct chest flags.
+Only these 214 flags are targeted; type 2 hidden-item flags are excluded.
+The game's own GetOpenChestCount(false) returned 214 during the temporary state.
+
+前後比較／Before and after
+Chests: 38 -> temporarily 214 -> 38.
+Missing chest flags temporarily completed: 176.
+Hidden items: 9 -> 9.
+UserSaveData.openChestCount: 38 -> 38.
+Treasure array: all 512 bytes restored exactly.
+DataStorage.Serialize: exact match before/after.
+
+Steam API / Steam 成就頁
+22-chest achievement: 1 -> 1.
+107-chest achievement: 0 -> 1.
+214-chest achievement: 0 -> 1.
+Steam treasure_box stat: 38 -> 214.
+All other 34 Steam achievement states unchanged.
+使用者已在 Steam 成就頁確認 50% 與 100% 皆已解鎖。
+User confirmed both 50% and 100% unlocks on Steam's achievement page.
+
+角色與其他資料／Character and other data
+Character identities/jobs, abilities, command pointers, levels, stats, HP/MP,
+EXP, Gil, equipped/owned magicite, total monster kills and map unchanged.
+No loot-grant or save method is called during the temporary flag window.
+No direct Steam unlock method or hard-coded achievement progress write is used.
+
+正式表驗證／Delivered-table checks
+One initially inactive entry, descriptive bilingual title, no load-time Lua.
+Actual checkbox run, default backup path and bilingual result dialog verified.
+Repeat run again restored the original 38/214; achievements remained unlocked.
+
+備份／Backup
+Full save folder and plaintext map snapshots retained locally, not published.
+Snapshots are not encrypted game-save replacements.
+
+未測試／Not tested
+Full game restart; other accounts, operating systems or builds;
+opening a chest after restoration; forced process termination during cleanup.
