@@ -1,0 +1,20 @@
+實測紀錄／Validation — 50 萬 Gil 成就／500,000 Gil achievement
+2026-10-15 · Steam build 20265119 · CrossOver + Cheat Engine
+
+效果／Effect
+指定 total_gil_500000 成就，透過遊戲的 SteamSDKManager.SetAchievment 與 UploadUserStats 處理。不修改持有金錢 owendGil 或存檔累計 totalGil，不發放戰鬥獎勵。
+Targets total_gil_500000 through the game's SteamSDKManager.SetAchievment and UploadUserStats. Does not edit held money (owendGil), saved lifetime Gil (totalGil), or battle rewards.
+
+標題明列可能連帶解鎖 1 萬／10 萬 Gil 成就。原本補錢的 Gil1000000 CT 維持原用途；此表不需要啟用它。
+The title states that the 10,000/100,000 Gil tiers may unlock too. The existing Gil1000000 table retains its money-editing purpose and is not required by this table.
+
+實測／Observed result
+持有 Gil：908303→908303；存檔累計 Gil：37626→37626。
+Held Gil: 908303→908303; saved lifetime Gil: 37626→37626.
+Steam total_gil stat: 37626→500000.
+total_gil_10000: 1→1; total_gil_100000: 0→1; total_gil_500000: 0→1.
+其餘 34 項成就不變。使用者已在 Steam 確認 10 萬與 50 萬兩項解鎖。
+The other 34 achievements were unchanged. The user confirmed both the 100,000 and 500,000 unlocks on Steam.
+
+擊破數、358 筆怪物記錄、角色、技能、魔石與序列化地圖資料均核對不變。正式 CT 的預設未啟用、實際勾選再次執行、預設備份路徑與雙語完成訊息已確認；重複執行不再呼叫解鎖。
+Kill counts, 358 monster records, characters, abilities, magicite and serialized map data were verified unchanged. The delivered inactive default, actual repeat checkbox execution, default backup path and bilingual result dialog were checked. Repeat activation skips unlocking an already-unlocked target.

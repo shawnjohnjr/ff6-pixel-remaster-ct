@@ -34,6 +34,10 @@ Independent Cheat Engine tables for separate use. This README is bilingual; some
 | [AllBestiary](FF6_PR_AllBestiary_20265119.CT) | 全圖鑑 346/346，並透過遊戲正常檢查圖鑑成就 | Completes the 346-entry bestiary and invokes the game's normal bestiary achievement check |
 | [ChestAchievements](FF6_PR_ChestAchievements_20265119.CT) | 只解寶箱成就：暫補 214 旗標、檢查後還原；不領取道具 | Chest achievements only: temporarily complete 214 flags, check, then restore; no loot |
 | [HiddenItemAchievements](FF6_PR_HiddenItemAchievements_20265119.CT) | 只解隱藏道具全收集成就：暫補 50 旗標、檢查後還原；不領取道具 | Hidden-item achievement only: temporarily complete 50 flags, check, then restore; no loot |
+| [Kill2000Achievement](FF6_PR_Kill2000Achievement_20265119.CT) | 解鎖 2000 隻成就；Steam 可能連帶低階成就；遊戲擊破數不變 | Unlocks 2000 kills; lower Steam tiers may follow; game kill counts unchanged |
+| [Gil500kAchievement](FF6_PR_Gil500kAchievement_20265119.CT) | 解鎖 50 萬 Gil 成就；可能連帶 1 萬／10 萬；持有與累計 Gil 不變 | Unlocks 500k Gil; 10k/100k may follow; held/lifetime Gil unchanged |
+| [MachineryAchievement](FF6_PR_MachineryAchievement_20265119.CT) | 補齊 8 種機械各至少 1 個並正常檢查成就；已有更多保留 | Grants missing tools to own all 8 and checks the achievement; preserves higher quantities |
+| [WorldVisitAchievement](FF6_PR_WorldVisitAchievement_20265119.CT) | 解鎖造訪所有地方成就；不傳送、不補造訪／劇情旗標 | Unlocks all-locations achievement without teleporting or visit/story flag edits |
 
 ## 使用方式｜How to use
 
@@ -86,6 +90,10 @@ Tables start inactive and do not apply changes merely by opening. Disabling does
 | 全怪物圖鑑／AllBestiary | 54→346；50% 與 100% Steam 成就解鎖且經使用者在 Steam 確認；共用圖鑑檔重讀通過／54→346; 50% and 100% Steam achievements unlocked and user-confirmed on Steam; shared-file reload passed | 完整重啟、其他帳號／系統／版本／Full restart, other accounts, systems or builds |
 | 寶箱成就／ChestAchievements | 暫時 38→214→還原 38；隱藏道具 9 不變；50% 與 100% Steam 成就解鎖且使用者確認；完整旗標與地圖資料一致／Temporary 38→214→restored 38; hidden items remain 9; 50%/100% unlocks user-confirmed on Steam; exact flag/map restoration | 完整重啟、其他帳號／版本、還原後開箱／Full restart, other accounts/builds, opening a chest afterward |
 | 隱藏道具成就／HiddenItemAchievements | 暫時 9→50→還原 9；寶箱維持 38；Steam API 與使用者在 Steam 確認解鎖；完整旗標與地圖資料一致／Temporary 9→50→restored 9; chests remain 38; Steam API and user on Steam confirm unlock; exact flag/map restoration | 完整重啟、其他帳號／版本、還原後拾取／Full restart, other accounts/builds, collecting afterward |
+| 擊破成就／Kill2000Achievement | 1000 與 2000 隻解鎖，使用者確認；遊戲總數 245、358 筆次數不變／1000 and 2000 unlocked, user-confirmed; game total 245 and all 358 records unchanged | 其他帳號、完整重啟／Other accounts, full restart |
+| Gil 成就／Gil500kAchievement | 10 萬與 50 萬解鎖，使用者 Steam 確認；持有 908303、累計 37626 不變／100k and 500k unlocked, user-confirmed; held 908303/lifetime 37626 unchanged | 其他帳號、完整重啟／Other accounts, full restart |
+| 機械／MachineryAchievement | 4→8 種，補 4 種各 1；正常成就檢查通過；使用者確認清單與成就／4→8 types, four missing tools added; normal achievement check passed; menu/unlock user-confirmed | 戰鬥效果、存檔重讀／Combat effects, save/reload |
+| 全地點成就／WorldVisitAchievement | area_visit 0→1；地圖／背包／遊戲統計與其他 36 成就不變／area_visit 0→1; map/inventory/game stats and other 36 achievements unchanged | 使用者 Steam 確認、完整重啟／User Steam confirmation, full restart |
 
 角色清單相容性修正後，12 段程式皆成功編譯並在目前存檔做唯讀預檢：11 段通過，青魔法因斯特拉哥尚未加入而正確停止。這輪沒有重複套用其他修改。不要把部分成功實測解讀成所有劇情皆適用。
 
@@ -144,6 +152,30 @@ Stay idle on a normal field map; do not move, change maps, save or close the too
 正式表的標題、預設未啟用、實際勾選、預設備份、雙語完成提示與重複執行已確認。未測完整重啟、其他帳號／系統／版本或還原後實際拾取。[中英雙語說明／Bilingual notes](HiddenItemAchievements-README.txt) · [實測紀錄／Validation](HiddenItemAchievements-Validation.txt)。
 
 The delivered title, inactive default, checkbox execution, default backup, bilingual result dialog and repeat execution were checked. A full restart, other accounts/systems/builds and collecting an item afterward were not tested. See the bilingual notes and validation linked above.
+
+## 擊破、Gil、機械與全地點｜Kills, Gil, tools and locations
+
+**擊破與 Gil 成就表直接指定 Steam 成就，保留遊戲統計。Steam 的共用進度可能提高並連帶解鎖低階成就，標題已註明。** 擊破實測：遊戲總數維持 245，358 筆怪物次數不變；Steam 進度 246→2000，1000 與 2000 隻成就解鎖，使用者接受連動並確認。Gil 實測：持有 908303、累計 37626 不變；Steam 進度 37626→500000，10 萬與 50 萬成就解鎖並經使用者在 Steam 確認。
+
+**The kill and Gil achievement tables directly target Steam achievements while retaining game statistics. Linked Steam progress can rise and unlock lower tiers, as stated in the titles.** Kill test: game total stayed 245 with all 358 monster records unchanged; Steam progress 246→2000 unlocked the 1000/2000 tiers, accepted and confirmed by the user. Gil test: held 908303 and saved lifetime 37626 were unchanged; Steam progress 37626→500000 unlocked 100k/500k, confirmed by the user on Steam.
+
+原本 `Gil1000000` 只修改目前持有金錢，不代表累計獲得金錢成就會解鎖；它與新的 `Gil500kAchievement` 分開使用，原表維持原用途。
+
+The original `Gil1000000` edits currently held money; this does not establish completion of lifetime-Gil achievements. It remains separate from `Gil500kAchievement` and retains its original purpose.
+
+**機械表會實際補道具。** 只將缺少的 8 種機械補至各 1 個，更多保留，再呼叫遊戲原本的 `UpdateMachineAll`。實測 4→8 種、`machinery_master` 解鎖，背包其餘數量、金錢與擊破數不變，使用者已確認。請另存新欄位保留道具；戰鬥使用與存檔重讀未測試。
+
+**The tools table grants actual items.** It adds one only for each missing tool, retains higher quantities and calls the game's normal `UpdateMachineAll`. The test changed 4→8 types and unlocked `machinery_master`, with other inventory quantities, Gil and kills unchanged; the user confirmed both. Save to a new slot to retain the tools. Combat use and save/reload were not tested.
+
+全地點表只解鎖 `area_visit`，不傳送角色、不補造訪或劇情旗標，也不把未到過的地方改成已造訪。API 實測 0→1；完整地圖快照、背包、遊戲統計及其他 36 項成就不變。使用者在 Steam 的確認尚待回覆。
+
+The locations table unlocks only `area_visit`; it does not teleport, edit visit/story flags or mark unvisited places as visited. The API test changed 0→1; the complete map snapshot, inventory, game statistics and other 36 achievements were unchanged. User confirmation on Steam is pending.
+
+這四份表各自獨立、預設未啟用，會先在 Cheat Engine 安裝目錄建立狀態快照。快照不是加密存檔替代品，也不能撤銷成就；完整存檔備份僅留本機。擊破、Gil、全地點表無須另存角色存檔來保存 Steam 成就。完整重啟、其他帳號／系統／版本未測試。
+
+All four tables are independent and initially inactive, creating a local state snapshot in the Cheat Engine installation directory before changes. Snapshots cannot replace encrypted saves or revoke achievements; full save backups remain local. The kill, Gil and locations tables do not need a character-slot save for Steam achievements. Full restarts and other accounts/systems/builds were not tested.
+
+[擊破說明／Kill notes](Kill2000Achievement-README.txt) · [Gil 說明／Gil notes](Gil500kAchievement-README.txt) · [機械說明／Tools notes](MachineryAchievement-README.txt) · [8 種機械清單／Tool mapping](MachineryAchievement-list.txt) · [全地點說明／Locations notes](WorldVisitAchievement-README.txt)
 
 ## 實作與更新｜Implementation and updates
 

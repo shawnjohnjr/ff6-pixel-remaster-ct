@@ -1,0 +1,9 @@
+Content ID | 中文名稱 | English name
+31 | 聲波增幅器 | Noiseblaster
+32 | 毒菌噴射器 | Bioblaster
+33 | 強光照射器 | Flash
+34 | 回轉電鋸 | Chainsaw
+35 | 弱點製造器 | Debilitator
+36 | 鑽頭 | Drill
+37 | 空氣錨 | Air Anchor
+38 | 自動弩 | Auto Crossbow
