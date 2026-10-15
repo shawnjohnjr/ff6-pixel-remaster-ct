@@ -1,0 +1,222 @@
+<?xml version='1.0' encoding='utf-8'?>
+<CheatTable CheatEngineTableVersion="45">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"取得全 27 種魔石（已有保留；不自動學會魔法）"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+local FF6_MAGICITE_READ_ONLY=false
+
+assert(getOpenedProcessID()~=0,'Attach to FINAL FANTASY VI.exe')
+local base=getAddressSafe('GameAssembly.dll');assert(base,'GameAssembly.dll missing')
+local pe=base+readInteger(base+60)
+assert(readInteger(pe+8)==1745316249 and readInteger(pe+80)==42369024,'Requires FF6 PR Steam build 20265119')
+assert(LaunchMonoDataCollector(),'Mono collector unavailable')
+local classes,fields,methods={},{},{}
+local function cls(ns,n)
+ local key=ns..'.'..n
+ if not classes[key] then local c=mono_findClass(ns,n);assert(c and c~=0,'Class missing: '..key);classes[key]=c end
+ return classes[key]
+end
+local function fld(c,n,t)
+ if not fields[c] then fields[c]=assert(mono_class_enumFields(c,true),'Field lookup failed') end
+ for _,v in ipairs(fields[c]) do if v.name==n then assert(not t or v.typename==t,'Field type mismatch: '..n);return v end end
+ error('Missing field '..n)
+end
+local function meth(c,n,sig)
+ local current=c
+ while current and current~=0 do
+  if not methods[current] then methods[current]=assert(mono_class_enumMethods(current),'Method lookup failed') end
+  for _,m in ipairs(methods[current]) do if m.name==n and mono_method_getSignature(m.method)==sig then return m.method end end
+  current=mono_class_getParent(current)
+ end
+ error('Missing method '..n..' ('..sig..')')
+end
+local function call(m,o,args)
+ local r,e=mono_invoke_method(0,m,o or 0,args or {});assert(e==nil,tostring(e));return r
+end
+local function ptr(a,c)
+ local p=readPointer(a);assert(p and p&gt;65536,'Invalid pointer')
+ if c then assert(readPointer(p)==c,'Object type mismatch') end
+ return p
+end
+local function list(o,max)
+ local n=readInteger(o+0x18);local a=ptr(o+0x10)
+ assert(n and n&gt;=0 and n&lt;=max,'Invalid list count')
+ local capacity=readInteger(a+0x18);assert(capacity and capacity&gt;=n and capacity&lt;=512,'Invalid capacity')
+ local r={};for i=0,n-1 do r[#r+1]=ptr(a+0x20+i*8) end;return r
+end
+local um=cls('Last.Management','UserDataManager')
+local u=mono_class_getStaticFieldValue(um,fld(um,'instance').field)
+assert(type(u)=='number' and u&gt;65536 and readPointer(u)==um,'Load a save first')
+local us=cls('Last.Data.User','UserSaveData')
+local save=ptr(u+fld(um,'saveData').offset,us)
+local cc=cls('Last.Data.User','OwnedCharacterData')
+local cs=cls('Last.Data.User','OwnedCharacterSaveData')
+local pc=cls('Last.Data','PlayerCharacterParameter')
+local chars={}
+for _,ch in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),16)) do
+ assert(readPointer(ch)==cc,'Unexpected character')
+ local s=ptr(ch+fld(cc,'saveData').offset,cs)
+ local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+ assert(id and id&gt;=1 and id&lt;=16 and not chars[id],'Invalid character ID')
+ chars[id]={object=ch,save=s,id=id}
+end
+local corps=cls('Last.Data.User','Corps');local corpsSave=cls('Last.Data.User','CorpsSaveData')
+local party={};local seen={}
+for _,o in ipairs(list(ptr(u+fld(um,'&lt;corpsList&gt;k__BackingField').offset),4)) do
+ assert(readPointer(o)==corps,'Unexpected party slot')
+ local s=ptr(o+fld(corps,'saveData').offset,corpsSave)
+ local id=readInteger(s+fld(corpsSave,'characterId','System.Int32').offset)
+ assert(id and id&gt;=0 and id&lt;=16,'Invalid party ID')
+ if id~=0 then assert(chars[id] and not seen[id],'Invalid or repeated party character');seen[id]=true;party[#party+1]=chars[id] end
+end
+assert(#party&gt;0,'Load a save and stop on the map')
+
+
+local magiciteIds={62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88}
+local preserved={}
+local function capture(address)
+ local n=readInteger(address);assert(n~=nil,'Cannot capture state');preserved[#preserved+1]={address,n}
+end
+capture(save+fld(us,'owendGil','System.Int32').offset)
+local psClass=cls('Last.Data.User','PlayerCharacterParameterSaveData')
+for _,ch in pairs(chars) do
+ capture(ch.save+fld(cs,'currentExp','System.Int32').offset)
+ local p=ptr(ch.object+fld(cc,'parameter').offset,pc)
+ local ps=ptr(p+fld(pc,'saveData').offset,psClass)
+ for _,name in ipairs({'&lt;BaseLevel&gt;k__BackingField','currentHP','currentMP','&lt;BasePower&gt;k__BackingField','&lt;BaseAgility&gt;k__BackingField','&lt;BaseVitality&gt;k__BackingField','&lt;BaseMagic&gt;k__BackingField'}) do capture(p+fld(pc,name,'System.Int32').offset) end
+ for _,name in ipairs({'addtionalPower','addtionalAgility','addtionalVitality','addtionalMagic'}) do
+  capture(ps+fld(psClass,name,'System.Int32').offset)
+ end
+end
+
+
+local progression={}
+
+for _,ch in pairs(chars) do capture(ch.save+fld(cs,'magicStoneId','System.Int32').offset) end
+for _,name in ipairs({'&lt;CurrentAreaType&gt;k__BackingField','&lt;CurrentAreaId&gt;k__BackingField','&lt;CurrentMapId&gt;k__BackingField'}) do capture(u+fld(um,name).offset) end
+for _,name in ipairs({'owendCrystalFlags','ownedKeyWaordList'}) do
+ local address=save+fld(us,name).offset;local value=readPointer(address)
+ assert(value~=nil,'Cannot capture progression reference')
+ -- The add method only appends to the runtime magicite list; these references must not change.
+ progression[#progression+1]={address,value}
+end
+
+local function roster()
+ local result={}
+ for _,o in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),16)) do
+  assert(readPointer(o)==cc,'Invalid character object')
+  local s=ptr(o+fld(cc,'saveData').offset,cs)
+  local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+  assert(id and id&gt;=1 and id&lt;=16 and not result[id],'Invalid character ID')
+  result[id]={object=o,save=s,id=id,status=readInteger(s+fld(cs,'characterStatusId','System.Int32').offset),job=readInteger(s+fld(cs,'jobId','System.Int32').offset)}
+ end
+ return result
+end
+local ac=cls('Last.Data.User','OwnedAbility');local ass=cls('Last.Data.User','OwnedAbilitySaveData')
+local function abilityRecords(o)
+ local records={}
+ for _,v in ipairs(list(ptr(o+fld(cc,'&lt;OwnedAbilityList&gt;k__BackingField').offset),512)) do
+  assert(readPointer(v)==ac,'Invalid ability object')
+  local s=ptr(v+fld(ac,'saveData').offset,ass)
+  local id=readInteger(s+fld(ass,'abilityId','System.Int32').offset)
+  local cid=readInteger(s+fld(ass,'contentId','System.Int32').offset)
+  local skill=readInteger(s+fld(ass,'skillLevel','System.Int32').offset)
+  assert(id and id&gt;0 and cid and cid&gt;0 and skill and not records[id],'Invalid or duplicate ability record')
+  records[id]={content=cid,skill=skill}
+ end
+ return records
+end
+local function snapshot()
+ local result={}
+ for id,ch in pairs(roster()) do
+  result[id]={status=ch.status,job=ch.job,exp=readInteger(ch.save+fld(cs,'currentExp','System.Int32').offset),abilities=abilityRecords(ch.object),commands=list(ptr(ch.object+fld(cc,'&lt;CommandList&gt;k__BackingField').offset),64)}
+ end
+ return result
+end
+
+local magiciteField=fld(um,'&lt;OwnedMagicStoneList&gt;k__BackingField','System.Collections.Generic.List&lt;System.Int32&gt;').offset
+local allowed={};for _,id in ipairs(magiciteIds) do allowed[id]=true end
+local function stones()
+ local o=ptr(u+magiciteField)
+ local n=readInteger(o+0x18);local a=ptr(o+0x10)
+ assert(n and n&gt;=0 and n&lt;=27,'Unexpected magicite count')
+ local capacity=readInteger(a+0x18)
+ assert(capacity and capacity&gt;=n and capacity&lt;=512,'Unexpected magicite capacity')
+ local result={};local order={}
+ for i=0,n-1 do
+  local id=readInteger(a+0x20+i*4)
+  assert(id and allowed[id] and not result[id],'Unknown or duplicate magicite')
+  result[id]=true;order[#order+1]=id
+ end
+ return result,order
+end
+local before,oldOrder=stones()
+local characterBefore=snapshot()
+local missing={};for _,id in ipairs(magiciteIds) do if not before[id] then missing[#missing+1]=id end end
+print('MAGICITE PREFLIGHT','owned',#oldOrder,'missing',#missing,'total',#magiciteIds)
+for _,id in ipairs(oldOrder) do print('EXISTING MAGICITE',id) end
+local clientClass=cls('Last.Management','UserDataClient')
+local ctor=meth(clientClass,'.ctor','')
+local add=meth(clientClass,'AddOwnedMagicStone','System.Int32')
+local remove=meth(clientClass,'RemoveOwnedMagicStone','System.Int32')
+local function verifyCharacters()
+ local after=snapshot()
+ for id,old in pairs(characterBefore) do
+  local now=assert(after[id],'Character removed')
+  assert(now.status==old.status and now.job==old.job and now.exp==old.exp,'Character identity/job/EXP changed')
+  assert(#now.commands==#old.commands,'Command count changed')
+  for i,v in ipairs(old.commands) do assert(now.commands[i]==v,'Command order changed') end
+  for aid,v in pairs(old.abilities) do
+   local a=assert(now.abilities[aid],'Ability removed')
+   assert(a.content==v.content and a.skill==v.skill,'Character magic or ability changed')
+  end
+  for aid in pairs(now.abilities) do assert(old.abilities[aid],'Unexpected new character ability') end
+ end
+ for id in pairs(after) do assert(characterBefore[id],'Unexpected new character') end
+ for _,v in ipairs(progression) do assert(readPointer(v[1])==v[2],'Progression data reference changed') end
+ for _,v in ipairs(preserved) do assert(readInteger(v[1])==v[2],'Gil, level, stats, HP/MP or equipped magicite changed') end
+end
+if FF6_MAGICITE_READ_ONLY then verifyCharacters();return end
+local client=mono_object_new(clientClass)
+assert(type(client)=='number' and client&gt;65536 and readPointer(client)==clientClass,'Cannot create data client')
+call(ctor,client)
+local added={}
+local ok,err=pcall(function()
+ local current,order=stones();assert(#order==#oldOrder,'Magicite list changed; stop on map and retry')
+ for i,id in ipairs(oldOrder) do assert(order[i]==id,'Magicite order changed') end
+ verifyCharacters()
+ for _,id in ipairs(missing) do
+  -- Track before invoking so a partially completed addition can also be removed.
+  added[#added+1]=id
+  call(add,client,{id})
+  assert(stones()[id],'Magicite addition failed: '..id)
+ end
+ local final,order=stones();assert(#order==27,'Incomplete magicite list')
+ for _,id in ipairs(magiciteIds) do assert(final[id],'Missing magicite: '..id) end
+ for i,id in ipairs(oldOrder) do assert(order[i]==id,'Existing magicite order changed') end
+ verifyCharacters()
+end)
+if not ok then
+ local rollback=true
+ for i=#added,1,-1 do local success=pcall(call,remove,client,{added[i]});rollback=rollback and success end
+ local final,order=stones()
+ if #order~=#oldOrder then rollback=false end
+ for i,id in ipairs(oldOrder) do if order[i]~=id then rollback=false end end
+ error(tostring(err)..'; rollback='..tostring(rollback)..'. Reload original save if needed.')
+end
+for _,id in ipairs(magiciteIds) do print('MAGICITE VERIFIED',id) end
+print('ALL MAGICITE VERIFIED',27,'added',#added,'character abilities and equipped magicite preserved')
+
+showMessage("全 27 種魔石已核對。請重新開啟魔石選單確認，另存新欄位。取消勾選不會還原。")
+{$asm}
+[DISABLE]
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols />
+</CheatTable>

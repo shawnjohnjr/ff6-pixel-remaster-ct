@@ -101,4 +101,10 @@ The earlier read-only preflight resolved the four stat fields for the current tw
 
 [Separate Terra CT](FF6_PR_TerraUltimaQuick_20265119.CT) teaches only Ultima and Quick to the permanent Terra role. Already mastered spells are skipped; partial learning is completed through the game's LearningAbility method. It does not grant magicite or change story progress.
 
-Applied to the live game on 2026-10-14: Ultima remained at 100%; Quick changed from 0% to 100%. Unrelated ability records, commands, identities, jobs, EXP, Gil, levels, four stats, and HP/MP were checked unchanged. The learning script matches the delivered CT; combat and save/reload persistence are untested, and menu confirmation is pending. [Chinese usage notes](TerraUltimaQuick-README.txt).
+Applied to the live game on 2026-10-14: Ultima remained at 100%; Quick changed from 0% to 100%. Unrelated ability records, commands, identities, jobs, EXP, Gil, levels, four stats, and HP/MP were checked unchanged. The learning script matches the delivered CT; combat and save/reload persistence are untested, and the user confirmed both spells appeared and were selectable in the magic menu. [Chinese usage notes](TerraUltimaQuick-README.txt).
+
+## All 27 magicite (acquisition untested)
+
+[AllMagicite CT](FF6_PR_AllMagicite_20265119.CT) grants missing magicite from the exact build's 27 entries (content IDs 62–88), retaining existing entries and their order. It includes both Odin and Raiden. It does not teach character spells, equip magicite, or directly edit story flags.
+
+Validated on 2026-10-15: all IDs/names checked against the local build; acquisition method inspected; the delivered Lua compiled successfully in Cheat Engine; XML and initially inactive state checked. FF6 was closed, so live preflight, acquisition, menus, summons, learning, save/reload, and later story compatibility remain **untested**. On failure it attempts to remove only entries added by this run. [Usage notes](AllMagicite-README.txt) · [27-entry list](AllMagicite-list.txt).
