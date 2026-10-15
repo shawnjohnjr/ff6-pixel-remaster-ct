@@ -1,6 +1,6 @@
 # FF6 Pixel Remaster Cheat Engine Tables｜作弊表
 
-**Steam build 20265119 · CrossOver · 驗證日期／Validation dates: 2026-10-14–15**
+**Steam build 20265119 · CrossOver · 驗證日期／Validation dates: 2026-10-14–16**
 
 獨立 CT 檔案，依需要分開使用。README 提供中英雙語；部分附加清單與舊版使用說明仍以繁體中文撰寫。
 
@@ -38,6 +38,8 @@ Independent Cheat Engine tables for separate use. This README is bilingual; some
 | [Gil500kAchievement](FF6_PR_Gil500kAchievement_20265119.CT) | 解鎖 50 萬 Gil 成就；可能連帶 1 萬／10 萬；持有與累計 Gil 不變 | Unlocks 500k Gil; 10k/100k may follow; held/lifetime Gil unchanged |
 | [MachineryAchievement](FF6_PR_MachineryAchievement_20265119.CT) | 補齊 8 種機械各至少 1 個並正常檢查成就；已有更多保留 | Grants missing tools to own all 8 and checks the achievement; preserves higher quantities |
 | [WorldVisitAchievement](FF6_PR_WorldVisitAchievement_20265119.CT) | 解鎖造訪所有地方成就；不傳送、不補造訪／劇情旗標 | Unlocks all-locations achievement without teleporting or visit/story flag edits |
+| [JokerAchievement](FF6_PR_JokerAchievement_20265119.CT) | 只解鎖致命鬼牌成就；不執行老虎機、不改角色與存檔統計 | Unlocks Joker’s Death achievement only; no Slots execution or character/save-stat edits |
+| [AllDances](FF6_PR_AllDances_20265119.CT) | 莫古學會全部 8 種舞蹈；補齊未精通項目，不改等級與能力值 | Teaches Mog all 8 dances, skipping mastered entries; levels and stats unchanged |
 
 ## 使用方式｜How to use
 
@@ -94,6 +96,9 @@ Tables start inactive and do not apply changes merely by opening. Disabling does
 | Gil 成就／Gil500kAchievement | 10 萬與 50 萬解鎖，使用者 Steam 確認；持有 908303、累計 37626 不變／100k and 500k unlocked, user-confirmed; held 908303/lifetime 37626 unchanged | 其他帳號、完整重啟／Other accounts, full restart |
 | 機械／MachineryAchievement | 4→8 種，補 4 種各 1；正常成就檢查通過；使用者確認清單與成就／4→8 types, four missing tools added; normal achievement check passed; menu/unlock user-confirmed | 戰鬥效果、存檔重讀／Combat effects, save/reload |
 | 全地點成就／WorldVisitAchievement | area_visit 0→1；地圖／背包／遊戲統計與其他 36 成就不變／area_visit 0→1; map/inventory/game stats and other 36 achievements unchanged；使用者已確認／user confirmed | 完整重啟／Full restart |
+
+| 致命鬼牌成就／JokerAchievement | gambler_master 0→1；其餘 36 成就、角色、背包與遊戲統計不變；使用者 Steam 確認／gambler_master 0→1; other 36 achievements, characters, inventory and game statistics unchanged; user-confirmed on Steam | 完整重啟、其他帳號／版本／Full restart, other accounts/builds |
+| 全舞蹈／AllDances | 1→8，新增 7 種、全部熟練度 100；其他角色／技能與統計不變；使用者確認全部可選用／1→8, seven learned, all at 100; other characters/abilities/statistics unchanged; user confirmed all selectable | 戰鬥效果、存檔重讀／Combat effects, save/reload |
 
 角色清單相容性修正後，12 段程式皆成功編譯並在目前存檔做唯讀預檢：11 段通過，青魔法因斯特拉哥尚未加入而正確停止。這輪沒有重複套用其他修改。不要把部分成功實測解讀成所有劇情皆適用。
 
@@ -176,6 +181,22 @@ The locations table unlocks only `area_visit`; it does not teleport, edit visit/
 All four tables are independent and initially inactive, creating a local state snapshot in the Cheat Engine installation directory before changes. Snapshots cannot replace encrypted saves or revoke achievements; full save backups remain local. The kill, Gil and locations tables do not need a character-slot save for Steam achievements. Full restarts and other accounts/systems/builds were not tested.
 
 [擊破說明／Kill notes](Kill2000Achievement-README.txt) · [Gil 說明／Gil notes](Gil500kAchievement-README.txt) · [機械說明／Tools notes](MachineryAchievement-README.txt) · [8 種機械清單／Tool mapping](MachineryAchievement-list.txt) · [全地點說明／Locations notes](WorldVisitAchievement-README.txt)
+
+## 致命鬼牌與莫古全舞蹈｜Joker’s Death and Mog’s dances
+
+致命鬼牌表只透過遊戲的 Steam 成就介面解鎖 `gambler_master`，不實際轉動老虎機或執行戰鬥。實測成就 0→1；持有 Gil 682904、累計 Gil 44127、主存檔與圖鑑擊破數 281、各怪物次數、角色／技能、背包、地圖資料與其餘 36 項成就均不變。使用者已在 Steam 成就頁確認解鎖。
+
+The Joker table unlocks only `gambler_master` through the game's Steam achievement interface, without executing Slots or battles. The achievement changed 0→1; held Gil 682904, lifetime Gil 44127, main-save/bestiary kills 281, individual monster counts, characters/abilities, inventory, map data and the other 36 achievements were unchanged. The user confirmed the unlock on Steam.
+
+全舞蹈表透過遊戲的 `OwnedCharacterClient.LearningAbility`，只補齊正式莫古尚未精通的舞蹈。這次辨識到的莫古記錄 ID 為 16（正式角色身分為 11），不是固定修改第 11 筆。原有黑暗鎮魂曲保持 100，其餘 7 種由 0→100；使用者確認全部 8 種都有顯示且能選用。持有 Gil 687904、累計 Gil 49127、擊破數 281、其他角色／技能、等級與能力值、背包、地圖與全部 37 項成就核對不變。舞蹈需要另存新欄位保留。
+
+The dances table uses the game's `OwnedCharacterClient.LearningAbility` to complete unmastered dances for permanent Mog. This save's Mog record ID was 16 (role identity 11); record 11 is not hardcoded. Twilight Requiem stayed at 100 and the other seven dances changed 0→100. The user confirmed all eight are displayed and selectable. Held Gil 687904, lifetime Gil 49127, kills 281, other characters/abilities, levels/stats, inventory, map data and all 37 achievements were unchanged. Save to a new slot to retain the dances.
+
+兩份 CT 獨立且預設未啟用；開檔不執行，套用前在 Cheat Engine 安裝目錄寫入狀態快照，無法寫入就停止。快照不等於可讀取的完整存檔，也不是自動還原功能。相同核心 Lua 已經由本機測試包實測；正式 CT 勾選介面與預設備份位置未另行實測。未測其他帳號／版本、完整重啟、戰鬥效果與存檔重讀。
+
+Both tables are independent and initially inactive. Opening does not run them. Before applying, they create a state snapshot in the Cheat Engine installation directory and stop if writing fails. Snapshots are not loadable full saves or automatic undo facilities. The same core Lua was tested via local wrappers; the formal checkbox interface and default backup location were not separately exercised. Other accounts/builds, full restart, combat behavior and save/reload were not tested.
+
+[致命鬼牌說明／Joker notes](JokerAchievement-README.txt) · [致命鬼牌實測／Joker validation](JokerAchievement-Validation.txt) · [全舞蹈說明／Dance notes](AllDances-README.txt) · [8 種舞蹈清單／Dance mapping](AllDances-list.txt) · [全舞蹈實測／Dance validation](AllDances-Validation.txt)
 
 ## 實作與更新｜Implementation and updates
 
