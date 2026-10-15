@@ -58,11 +58,11 @@ local cc=cls('Last.Data.User','OwnedCharacterData')
 local cs=cls('Last.Data.User','OwnedCharacterSaveData')
 local pc=cls('Last.Data','PlayerCharacterParameter')
 local chars={}
-for _,ch in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),16)) do
+for _,ch in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),512)) do
  assert(readPointer(ch)==cc,'Unexpected character')
  local s=ptr(ch+fld(cc,'saveData').offset,cs)
  local id=readInteger(s+fld(cs,'id','System.Int32').offset)
- assert(id and id&gt;=1 and id&lt;=16 and not chars[id],'Invalid character ID')
+ assert(id and id&gt;=1 and not chars[id],'Invalid character ID')
  chars[id]={object=ch,save=s,id=id}
 end
 local corps=cls('Last.Data.User','Corps');local corpsSave=cls('Last.Data.User','CorpsSaveData')
@@ -71,7 +71,7 @@ for _,o in ipairs(list(ptr(u+fld(um,'&lt;corpsList&gt;k__BackingField').offset),
  assert(readPointer(o)==corps,'Unexpected party slot')
  local s=ptr(o+fld(corps,'saveData').offset,corpsSave)
  local id=readInteger(s+fld(corpsSave,'characterId','System.Int32').offset)
- assert(id and id&gt;=0 and id&lt;=16,'Invalid party ID')
+ assert(id and id&gt;=0,'Invalid party ID')
  if id~=0 then assert(chars[id] and not seen[id],'Invalid or repeated party character');seen[id]=true;party[#party+1]=chars[id] end
 end
 assert(#party&gt;0,'Load a save and stop on the map')
@@ -109,11 +109,11 @@ local skills={
 
 local function roster()
  local result={}
- for _,o in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),16)) do
+ for _,o in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),512)) do
   assert(readPointer(o)==cc,'Invalid character object')
   local s=ptr(o+fld(cc,'saveData').offset,cs)
   local id=readInteger(s+fld(cs,'id','System.Int32').offset)
-  assert(id and id&gt;=1 and id&lt;=16 and not result[id],'Invalid character ID')
+  assert(id and id&gt;=1 and not result[id],'Invalid character ID')
   result[id]={object=o,save=s,id=id,status=readInteger(s+fld(cs,'characterStatusId','System.Int32').offset),job=readInteger(s+fld(cs,'jobId','System.Int32').offset)}
  end
  return result

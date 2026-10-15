@@ -103,8 +103,14 @@ The earlier read-only preflight resolved the four stat fields for the current tw
 
 Applied to the live game on 2026-10-14: Ultima remained at 100%; Quick changed from 0% to 100%. Unrelated ability records, commands, identities, jobs, EXP, Gil, levels, four stats, and HP/MP were checked unchanged. The learning script matches the delivered CT; combat and save/reload persistence are untested, and the user confirmed both spells appeared and were selectable in the magic menu. [Chinese usage notes](TerraUltimaQuick-README.txt).
 
-## All 27 magicite (acquisition untested)
+## All 27 magicite
 
 [AllMagicite CT](FF6_PR_AllMagicite_20265119.CT) grants missing magicite from the exact build's 27 entries (content IDs 62–88), retaining existing entries and their order. It includes both Odin and Raiden. It does not teach character spells, equip magicite, or directly edit story flags.
 
-Validated on 2026-10-15: all IDs/names checked against the local build; acquisition method inspected; the delivered Lua compiled successfully in Cheat Engine; XML and initially inactive state checked. FF6 was closed, so live preflight, acquisition, menus, summons, learning, save/reload, and later story compatibility remain **untested**. On failure it attempts to remove only entries added by this run. [Usage notes](AllMagicite-README.txt) · [27-entry list](AllMagicite-list.txt).
+Applied on 2026-10-15: 4 owned magicite became all 27, with 23 additions individually verified. Existing order, character identities/jobs, EXP, Gil, levels, four stats, HP/MP, abilities, commands, equipped magicite and map were verified unchanged. A subsequent read-only pass confirmed 27 owned and 0 missing. Menu/equipment confirmation is pending; summons, learning, save/reload and later story compatibility remain untested. On failure it attempts to remove only entries added by this run. [Usage notes](AllMagicite-README.txt) · [27-entry list](AllMagicite-list.txt).
+
+## Story-progress compatibility fix — 2026-10-15
+
+All nine CTs now read the bounded internal character list without assuming a maximum of 16 records or tying character identity to a record ID. The current save has 24 internal records, including historical/guest records; this does not expand the game's 14 permanent playable roles. Lv99 and stat boosts validate permanent status/job identity for the current party. Role-specific skill tables retain their explicit role checks. Re-download the updated files; previously downloaded CTs do not update automatically.
+
+All 12 Lua bodies compiled and underwent live read-only preflight. Eleven passed, including current-party records with IDs above 14; AllLores correctly stopped because permanent Strago is absent. This was not a repeat application of the other cheats. New all-magicite acquisition was applied and verified; previously untested stat writes and Rage/Lore acquisition remain untested. No claim of universal story compatibility is made. [Detailed validation and limitations](Validation-20261015.txt).
