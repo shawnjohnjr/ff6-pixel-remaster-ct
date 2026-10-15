@@ -1,0 +1,44 @@
+HiddenItemAchievements — 實測紀錄／Validation
+2026-10-15 · Steam build 20265119 · CrossOver + Cheat Engine
+
+效果／Effect: achievement only; original hidden-item flags restored; no loot.
+資料／Mapping: treasure_box type 2; 53 rows -> 50 distinct flags.
+Chest flag overlap: 0. Only type 2 flags targeted.
+
+前後比較／Before and after
+Hidden items: 9 -> temporarily 50 -> restored 9.
+Temporarily completed flags: 41.
+Chests: 38 -> 38; UserSaveData.openChestCount: 38 -> 38.
+All 512 bytes of treasure flags restored exactly.
+DataStorage.Serialize returned an exact before/after match.
+
+Steam 成就／Steam achievement
+get_hidden_item: 0 (locked) -> 1 (unlocked).
+All other 36 achievements unchanged.
+Steam page user confirmation: pending.
+GetAchievmentProgress('get_hidden_item') returned 0 before and after;
+this boolean-style achievement is verified through the actual unlock state,
+not by treating that stat read as collection progress.
+
+機制／Mechanism
+Temporarily complete 50 hidden-item flags, call UpdateHiddenItems,
+restore treasure flags in the cleanup path, verify full map state,
+then call AchievementManager.UploadUserStats.
+No direct Steam unlock, hard-coded achievement progress, item grant or save call.
+
+保留資料／Preserved data
+Character identities/jobs, abilities, command pointers, levels, four stats,
+HP/MP, EXP, Gil, owned/equipped magicite, kill count and map unchanged.
+
+正式檔／Delivered CT
+One initially inactive entry, descriptive bilingual title, no load-time Lua.
+Checkbox execution, default backup path and bilingual completion dialog checked.
+Repeat run restored 9/50 again; achievement remained unlocked.
+
+備份／Backups
+Full save-folder backup and plaintext map snapshots retained locally only.
+Plaintext snapshots cannot replace encrypted save files directly.
+
+未驗證／Not tested
+Full game restart; other accounts, systems or builds;
+collecting a hidden item afterward; forced termination during cleanup.

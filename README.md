@@ -33,6 +33,7 @@ Independent Cheat Engine tables for separate use. This README is bilingual; some
 | [AllLores](FF6_PR_AllLores_20265119.CT) | 斯特拉哥學會 24 招青魔法；取得尚未實測 | Teaches Strago all 24 Lores; acquisition remains untested |
 | [AllBestiary](FF6_PR_AllBestiary_20265119.CT) | 全圖鑑 346/346，並透過遊戲正常檢查圖鑑成就 | Completes the 346-entry bestiary and invokes the game's normal bestiary achievement check |
 | [ChestAchievements](FF6_PR_ChestAchievements_20265119.CT) | 只解寶箱成就：暫補 214 旗標、檢查後還原；不領取道具 | Chest achievements only: temporarily complete 214 flags, check, then restore; no loot |
+| [HiddenItemAchievements](FF6_PR_HiddenItemAchievements_20265119.CT) | 只解隱藏道具全收集成就：暫補 50 旗標、檢查後還原；不領取道具 | Hidden-item achievement only: temporarily complete 50 flags, check, then restore; no loot |
 
 ## 使用方式｜How to use
 
@@ -45,9 +46,9 @@ Independent Cheat Engine tables for separate use. This README is bilingual; some
 4. 重新開啟相關遊戲選單核對，確認後另存新欄位。
    Reopen the relevant in-game menu to verify the result, then save into a different slot.
 
-寶箱成就 CT 完成時會自動還原寶箱旗標，只保留已解鎖的成就，不需要另存角色存檔。
+寶箱與隱藏道具成就 CT 完成時會自動還原各自的收集旗標，只保留已解鎖的成就，不需要另存角色存檔。
 
-The chest-achievement CT automatically restores chest flags on completion, retaining unlocked achievements; no character-slot save is needed.
+The chest and hidden-item achievement CTs automatically restore their collection flags on completion, retaining unlocked achievements; no character-slot save is needed.
 
 檔案預設未啟用，開啟 CT 不會自動套用。取消勾選不會還原；要完整還原請讀取原存檔。下次執行先取消勾選再勾選。除非個別表明確說明，途中失敗不會自動撤銷已完成的修改。
 
@@ -84,6 +85,7 @@ Tables start inactive and do not apply changes merely by opening. Disabling does
 | 全青魔法／AllLores | ID、Lua 編譯與角色未加入保護確認／IDs, Lua compilation and missing-role guard checked | 取得、選單、戰鬥、存檔重讀／Acquisition, menus, combat and save/reload |
 | 全怪物圖鑑／AllBestiary | 54→346；50% 與 100% Steam 成就解鎖且經使用者在 Steam 確認；共用圖鑑檔重讀通過／54→346; 50% and 100% Steam achievements unlocked and user-confirmed on Steam; shared-file reload passed | 完整重啟、其他帳號／系統／版本／Full restart, other accounts, systems or builds |
 | 寶箱成就／ChestAchievements | 暫時 38→214→還原 38；隱藏道具 9 不變；50% 與 100% Steam 成就解鎖且使用者確認；完整旗標與地圖資料一致／Temporary 38→214→restored 38; hidden items remain 9; 50%/100% unlocks user-confirmed on Steam; exact flag/map restoration | 完整重啟、其他帳號／版本、還原後開箱／Full restart, other accounts/builds, opening a chest afterward |
+| 隱藏道具成就／HiddenItemAchievements | 暫時 9→50→還原 9；寶箱維持 38；Steam API 確認解鎖；完整旗標與地圖資料一致／Temporary 9→50→restored 9; chests remain 38; Steam API confirms unlock; exact flag/map restoration | Steam 頁面使用者確認、完整重啟、其他帳號／版本、還原後拾取／User confirmation on Steam, full restart, other accounts/builds, collecting afterward |
 
 角色清單相容性修正後，12 段程式皆成功編譯並在目前存檔做唯讀預檢：11 段通過，青魔法因斯特拉哥尚未加入而正確停止。這輪沒有重複套用其他修改。不要把部分成功實測解讀成所有劇情皆適用。
 
@@ -124,6 +126,24 @@ The in-game chest count stays at its original value while Steam's `treasure_box`
 正式 CT 的勾選執行、預設備份、完成提示及重複執行已驗證。完整遊戲重啟、其他帳號／系統／版本及還原後實際開箱未測試。[中英雙語說明／Bilingual notes](ChestAchievements-README.txt) · [實測紀錄／Validation](ChestAchievements-Validation.txt)。
 
 The delivered CT's checkbox execution, default backup, completion dialog and repeat execution were verified. A full restart, other accounts/systems/builds and actually opening a chest afterward were not tested. See the bilingual notes and validation linked above.
+
+## 隱藏道具成就與還原｜Hidden-item achievement with restoration
+
+**實測：隱藏道具 9 → 暫時 50 → 還原 9；寶箱維持 38。Steam API 的 `get_hidden_item` 從未解鎖變為已解鎖，其餘 36 項成就狀態不變。Steam 頁面的使用者確認尚待回覆。**
+
+**Tested: hidden items 9 → temporarily 50 → restored 9; chests remained at 38. Steam API `get_hidden_item` changed from locked to unlocked; all other 36 achievement states were unchanged. User confirmation on Steam's page is pending.**
+
+獨立 CT 的標題註明「暫補 50 旗標→檢查成就→還原道具狀態｜不領取道具」。本版 53 筆隱藏道具資料對應 50 個不重複旗標，與寶箱無重疊。暫時補齊後呼叫遊戲原本的 `UpdateHiddenItems`，隨即還原完整 512 bytes 寶物旗標並驗證完整地圖資料一致，再上傳 Steam。遊戲內進度保留原值，不補發道具、不永久標記取得，也不直接呼叫 Steam 解鎖方法。
+
+The standalone CT title explains its effect: temporarily complete 50 flags, check achievements, restore item states, no loot. This build's 53 hidden-item rows map to 50 distinct flags with no chest overlap. It calls the game's `UpdateHiddenItems` during temporary completion, immediately restores the entire 512-byte treasure flag array, verifies an exact full map-data match, then uploads Steam stats. In-game progress returns to its original value. No loot, permanent collected state or direct Steam unlock call is used.
+
+保持一般地圖靜止，執行期間不要移動、切圖、存檔或關閉工具。一般方法錯誤也會執行還原；突然終止程序仍可能阻止清理。先完整備份存檔；CT 另在 Cheat Engine 安裝目錄建立明文地圖快照，不能直接取代加密存檔。無須另存角色存檔。
+
+Stay idle on a normal field map; do not move, change maps, save or close the tool during execution. Ordinary method errors run cleanup; abrupt termination can prevent it. Back up the full save folder. A plaintext map snapshot is also created in the Cheat Engine installation directory and cannot directly replace encrypted saves. No character-slot save is needed.
+
+正式表的標題、預設未啟用、實際勾選、預設備份、雙語完成提示與重複執行已確認。未測完整重啟、其他帳號／系統／版本或還原後實際拾取。[中英雙語說明／Bilingual notes](HiddenItemAchievements-README.txt) · [實測紀錄／Validation](HiddenItemAchievements-Validation.txt)。
+
+The delivered title, inactive default, checkbox execution, default backup, bilingual result dialog and repeat execution were checked. A full restart, other accounts/systems/builds and collecting an item afterward were not tested. See the bilingual notes and validation linked above.
 
 ## 實作與更新｜Implementation and updates
 
