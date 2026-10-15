@@ -12,5 +12,5 @@ area_visit changed 0→1; the readable Steam area_visit stat remained 0.
 Before/after this operation: held Gil 909037, lifetime Gil 38360, main-save/bestiary kills 247 and the 358-record sum 552 were retained. The baseline differs from the preceding test because normal play occurred between operations.
 一般背包數量、角色資料、技能、魔石、目前區域／地圖與序列化地圖資料核對不變；其餘 36 項成就未變。
 Normal-inventory quantities, characters, abilities, magicite, current area/map and serialized map data were unchanged; the other 36 achievements were unchanged.
-Steam API 已確認解鎖；使用者在 Steam 頁面的確認尚待回覆。
-The Steam API confirmed the unlock; user confirmation on Steam's page is pending.
+Steam API 與使用者在 Steam 成就頁皆已確認解鎖。
+The Steam API and the user on Steam's achievement page confirmed the unlock.
