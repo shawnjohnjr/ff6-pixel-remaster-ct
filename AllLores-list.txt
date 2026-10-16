@@ -1,3 +1,4 @@
+能力 ID / Ability ID | 內容 ID / Content ID | 遊戲繁中名稱 / In-game Traditional Chinese name
 140 | 470 | 死亡宣告
 141 | 471 | 死亡輪盤
 142 | 472 | 大海嘯

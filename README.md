@@ -30,7 +30,7 @@ Independent Cheat Engine tables for separate use. This README is bilingual; some
 | [TerraUltimaQuick](FF6_PR_TerraUltimaQuick_20265119.CT) | 僅讓蒂娜學會究極與神速 | Teaches only Ultima and Quick to Terra |
 | [AllMagicite](FF6_PR_AllMagicite_20265119.CT) | 補齊全部 27 種魔石；不自動學會魔法 | Grants all 27 magicite; does not teach spells automatically |
 | [AllRages](FF6_PR_AllRages_20265119.CT) | 嘎嗚學會 252 種狂怒 | Teaches Gau all 252 Rages |
-| [AllLores](FF6_PR_AllLores_20265119.CT) | 斯特拉哥學會 24 招青魔法；取得尚未實測 | Teaches Strago all 24 Lores; acquisition remains untested |
+| [AllLores](FF6_PR_AllLores_20265119.CT) | 斯特拉哥學會全部 24 招青魔法；已實測且使用者確認可選用 | Teaches Strago all 24 Lores; applied and user-confirmed selectable |
 | [AllBestiary](FF6_PR_AllBestiary_20265119.CT) | 全圖鑑 346/346，並透過遊戲正常檢查圖鑑成就 | Completes the 346-entry bestiary and invokes the game's normal bestiary achievement check |
 | [ChestAchievements](FF6_PR_ChestAchievements_20265119.CT) | 只解寶箱成就：暫補 214 旗標、檢查後還原；不領取道具 | Chest achievements only: temporarily complete 214 flags, check, then restore; no loot |
 | [HiddenItemAchievements](FF6_PR_HiddenItemAchievements_20265119.CT) | 只解隱藏道具全收集成就：暫補 50 旗標、檢查後還原；不領取道具 | Hidden-item achievement only: temporarily complete 50 flags, check, then restore; no loot |
@@ -88,7 +88,7 @@ Tables start inactive and do not apply changes merely by opening. Disabling does
 | 蒂娜魔法／Terra spells | 究極保留 100%；神速 0→100%；使用者確認兩招可選用／Ultima stayed 100%; Quick 0→100%; user confirmed both selectable | 戰鬥施法、存檔重讀／Combat casts and save/reload |
 | 全魔石／AllMagicite | 4→27，新增 23 種逐項核對；使用者確認清單與裝備／4→27, all 23 additions verified; user confirmed menu/equipment | 召喚、學習、存檔重讀、後續劇情／Summons, learning, save/reload and later events |
 | 全狂怒／AllRages | 9→252，新增 243 種且全部進度 100%；其他技能與角色資料核對不變；使用者確認清單新增且可選用／9→252, 243 learned; all at 100%; unrelated skills and character data verified unchanged; user confirmed the expanded menu is selectable | 戰鬥效果、存檔重讀／Combat effects and save/reload |
-| 全青魔法／AllLores | ID、Lua 編譯與角色未加入保護確認／IDs, Lua compilation and missing-role guard checked | 取得、選單、戰鬥、存檔重讀／Acquisition, menus, combat and save/reload |
+| 全青魔法／AllLores | 3→24，補學 21 招；全部熟練度 100；其他角色、技能與統計不變；使用者確認 24 招可選用／3→24, 21 learned; all at 100; other characters, abilities and statistics unchanged; user confirmed all 24 selectable | 戰鬥效果、存檔重讀／Combat effects, save/reload |
 | 全怪物圖鑑／AllBestiary | 54→346；50% 與 100% Steam 成就解鎖且經使用者在 Steam 確認；共用圖鑑檔重讀通過／54→346; 50% and 100% Steam achievements unlocked and user-confirmed on Steam; shared-file reload passed | 完整重啟、其他帳號／系統／版本／Full restart, other accounts, systems or builds |
 | 寶箱成就／ChestAchievements | 暫時 38→214→還原 38；隱藏道具 9 不變；50% 與 100% Steam 成就解鎖且使用者確認；完整旗標與地圖資料一致／Temporary 38→214→restored 38; hidden items remain 9; 50%/100% unlocks user-confirmed on Steam; exact flag/map restoration | 完整重啟、其他帳號／版本、還原後開箱／Full restart, other accounts/builds, opening a chest afterward |
 | 隱藏道具成就／HiddenItemAchievements | 暫時 9→50→還原 9；寶箱維持 38；Steam API 與使用者在 Steam 確認解鎖；完整旗標與地圖資料一致／Temporary 9→50→restored 9; chests remain 38; Steam API and user on Steam confirm unlock; exact flag/map restoration | 完整重啟、其他帳號／版本、還原後拾取／Full restart, other accounts/builds, collecting afterward |
@@ -100,9 +100,9 @@ Tables start inactive and do not apply changes merely by opening. Disabling does
 | 致命鬼牌成就／JokerAchievement | gambler_master 0→1；其餘 36 成就、角色、背包與遊戲統計不變；使用者 Steam 確認／gambler_master 0→1; other 36 achievements, characters, inventory and game statistics unchanged; user-confirmed on Steam | 完整重啟、其他帳號／版本／Full restart, other accounts/builds |
 | 全舞蹈／AllDances | 1→8，新增 7 種、全部熟練度 100；其他角色／技能與統計不變；使用者確認全部可選用／1→8, seven learned, all at 100; other characters/abilities/statistics unchanged; user confirmed all selectable | 戰鬥效果、存檔重讀／Combat effects, save/reload |
 
-角色清單相容性修正後，12 段程式皆成功編譯並在目前存檔做唯讀預檢：11 段通過，青魔法因斯特拉哥尚未加入而正確停止。這輪沒有重複套用其他修改。不要把部分成功實測解讀成所有劇情皆適用。
+2026-10-15 角色清單相容性修正後，當時的 12 段程式皆成功編譯並在當時存檔做唯讀預檢：11 段通過，青魔法因斯特拉哥尚未加入而正確停止。這輪沒有重複套用其他修改。不要把部分成功實測解讀成所有劇情皆適用。
 
-After the character-record compatibility fix, all 12 Lua bodies compiled and underwent live read-only preflight: 11 passed; AllLores correctly stopped because Strago was absent. That pass did not reapply the other cheats. Successful tests of specific operations do not imply universal story compatibility.
+On 2026-10-15, after the character-record compatibility fix, the then-current 12 Lua bodies compiled and underwent live read-only preflight: 11 passed; AllLores correctly stopped because Strago was absent. That pass did not reapply the other cheats. Successful tests of specific operations do not imply universal story compatibility.
 
 ## 全圖鑑與成就實測｜Full bestiary and achievement test
 
@@ -197,6 +197,22 @@ The dances table uses the game's `OwnedCharacterClient.LearningAbility` to compl
 Both tables are independent and initially inactive. Opening does not run them. Before applying, they create a state snapshot in the Cheat Engine installation directory and stop if writing fails. Snapshots are not loadable full saves or automatic undo facilities. The same core Lua was tested via local wrappers; the formal checkbox interface and default backup location were not separately exercised. Other accounts/builds, full restart, combat behavior and save/reload were not tested.
 
 [致命鬼牌說明／Joker notes](JokerAchievement-README.txt) · [致命鬼牌實測／Joker validation](JokerAchievement-Validation.txt) · [全舞蹈說明／Dance notes](AllDances-README.txt) · [8 種舞蹈清單／Dance mapping](AllDances-list.txt) · [全舞蹈實測／Dance validation](AllDances-Validation.txt)
+
+## 全青魔法取得實測｜All-Lore acquisition test
+
+2026-10-16 斯特拉哥正式加入後，已透過遊戲的 `OwnedCharacterClient.LearningAbility` 實際補齊全部 24 招青魔法。依角色身分／職業 8 辨識到記錄 ID 27，不把第 8 筆記錄當成斯特拉哥。原有水紋吐息、復仇衝擊、投石保留熟練度 100，其餘 21 招由 0→100。使用者已確認 24 招都有顯示且能選用。
+
+After Strago joined permanently on 2026-10-16, all 24 Lores were completed through the game's `OwnedCharacterClient.LearningAbility`. Status/job 8 identified record ID 27, rather than assuming record 8 is Strago. Aqua Breath, Revenge Blast and Stone remained at 100 proficiency; the other 21 changed 0→100. The user confirmed all 24 are displayed and selectable.
+
+更新版會逐筆核對其他角色的技能，保留相同技能 ID 的重複項目。持有 Gil 752869、累計 Gil 124293、主存檔與圖鑑擊破數 334、其他角色／技能／指令、等級／EXP／HP／MP／四項能力、魔石、背包數量、各怪物次數、地圖／劇情／寶箱資料及全部 37 項成就均核對不變。這是實際取得技能，不增加背包道具，也不直接解鎖成就。
+
+The update compares other ability records individually, preserving repeated ability IDs. Held Gil 752869, lifetime Gil 124293, main-save/bestiary kills 334, other characters/abilities/commands, levels/EXP/HP/MP/four attributes, magicite, inventory quantities, individual monster counts, map/story/chest data and all 37 achievements were verified unchanged. This grants actual abilities without adding inventory items or directly unlocking achievements.
+
+與舊版相同，未找到正式斯特拉哥時停止。更新版開檔不執行，套用前會在 Cheat Engine 安裝目錄寫入 JSON 狀態快照，無法寫入則停止。相同核心 Lua 已由本機測試包實測；正式 CT 勾選介面與預設備份位置未另行實測。戰鬥效果、存檔重讀、完整重啟與其他帳號／版本未測。完成後請另存新欄位保留技能。
+
+As before, it stops if permanent Strago is absent. Opening the update does not run it; it writes a JSON state snapshot in the Cheat Engine installation directory before applying and stops if writing fails. The same core Lua was tested through a local wrapper; the formal checkbox interface and default backup location were not separately exercised. Combat behavior, save/reload, full restart and other accounts/builds were not tested. Save to a new slot afterward to retain the abilities.
+
+[全青魔法說明／Lore notes](AllLores-README.txt) · [實測紀錄／Validation](AllLores-Validation.txt) · [24 招清單／Lore mapping](AllLores-list.txt)
 
 ## 實作與更新｜Implementation and updates
 

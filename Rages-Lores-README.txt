@@ -7,8 +7,8 @@ Two separate CTs, each with one initially inactive entry; opening does not apply
 全狂怒 AllRages：嘎嗚的 252 種正常可學習狂怒。253 筆怪物對照去重為 252 種，排除對照外隱藏技能。
 AllRages: 252 normally learnable Rages for Gau, deduplicated from 253 monster mappings. Unmapped hidden skills are excluded.
 
-全青魔法 AllLores：斯特拉哥的 24 招玩家青魔法，不包含敵人專用變體。取得仍未實測。
-AllLores: Strago's 24 player Lores, excluding enemy-only variants. Acquisition remains untested.
+全青魔法 AllLores：斯特拉哥的 24 招玩家青魔法，不包含敵人專用變體。已實測 3→24，並由使用者確認可選用。
+AllLores: Strago's 24 player Lores, excluding enemy-only variants. Applied from 3 to 24 and user-confirmed selectable.
 
 使用 Use
 備份存檔，等正式角色加入後讀取遊戲，停在一般地圖並暫停操作。Cheat Engine 連接 FINAL FANTASY VI.exe，開啟需要的 CT，勾選一次。重新開啟技能選單確認，再另存新欄位。
@@ -30,5 +30,5 @@ Rages: Gau status/job 12, internal record ID 24. Initially 9 mastered and 243 ex
 角色身分、職業、等級、經驗值、四項能力、HP/MP、金錢、其他技能與指令均核對保持不變。使用者已確認狂怒清單新增且可選用；戰鬥效果與存檔重讀尚未測試。
 Character identities/jobs, levels, EXP, four stats, HP/MP, Gil, unrelated skills and commands were verified unchanged. The user confirmed that the expanded Rage menu is selectable; combat effects and save/reload are untested.
 
-青魔法：技能 ID、Lua 編譯與角色未加入保護曾核對；斯特拉哥尚未正式加入，取得、選單、戰鬥及存檔重讀仍未測試。不得將狂怒的實測結果套用到青魔法。
-Lores: Skill IDs, Lua compilation and missing-role protection were previously checked. Permanent Strago is absent; acquisition, menus, combat and save/reload remain untested. Rage validation does not establish Lore acquisition success.
+青魔法 — 2026-10-16：斯特拉哥正式加入後，已補學 21 招，原有 3 招保留，全部 24 招進度 100%。使用者確認 24 招可選用；其他角色、技能、等級、能力值、背包與遊戲統計核對不變。戰鬥與存檔重讀未測。獨立全青魔法說明及實測紀錄詳見 AllLores-README.txt、AllLores-Validation.txt。
+Lores — 2026-10-16: After permanent Strago joined, 21 Lores were learned and the original three retained, leaving all 24 at 100%. The user confirmed all 24 selectable; other characters, abilities, levels, stats, inventory and game statistics were unchanged. Combat and save/reload remain untested. See AllLores-README.txt and AllLores-Validation.txt for details.
