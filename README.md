@@ -26,6 +26,7 @@ Independent Cheat Engine tables for separate use. This README is bilingual; some
 | [TopEquipment](FF6_PR_TopEquipment_20265119.CT) | 62 種裝備：武器補至 8，防具／飾品補至 4；更多則保留 | Tops up 62 equipment types: weapons to 8, armor/relics to 4; preserves higher totals |
 | [Level99](FF6_PR_Level99_20265119.CT) | 目前隊伍正式角色升至 Lv99，包含正常升級成長 | Raises current permanent party members to Lv99 using normal level growth |
 | [StatsBoost](FF6_PR_StatsBoost_20265119.CT) | 四項能力各加 1–30，預設 +10，自然能力上限 128 | Adds 1–30 to Strength, Speed, Stamina and Magic; default +10, natural-stat cap 128 |
+| [CharacterStats](FF6_PR_CharacterStats_20265119.CT) | 依名稱選一名正式角色，分別設定四項能力目標；不含裝備，各角色原生基值至 128；尚未實測寫入 | Select one permanent role by name; set four absolute natural-stat targets from innate base to 128; live writes untested |
 | [Supplies](FF6_PR_Supplies_20265119.CT) | 特級乙太、終極萬靈藥、傳送石、魔石碎片，各自選擇補至 1–99 | Separate target totals of 1–99 for X-Ether, Megalixir, Teleport Stone and Magicite Shard |
 | [TerraUltimaQuick](FF6_PR_TerraUltimaQuick_20265119.CT) | 僅讓蒂娜學會究極與神速 | Teaches only Ultima and Quick to Terra |
 | [AllMagicite](FF6_PR_AllMagicite_20265119.CT) | 補齊全部 27 種魔石；不自動學會魔法 | Grants all 27 magicite; does not teach spells automatically |
@@ -85,6 +86,7 @@ Tables start inactive and do not apply changes merely by opening. Disabling does
 | 金錢、裝備、Lv99／Gil, equipment, Lv99 | 實際套用，使用者確認顯示及操作正常／Applied; user confirmed menus and normal operation | 全部角色與裝備戰鬥效果／Every character and equipment combat effect |
 | 補給／Supplies | 四項各 0→99；互不影響且金錢不變；輸入與取消介面確認／All four 0→99; other supplies/Gil preserved; input and cancellation checked | 道具使用效果、存檔重讀／Item effects and save/reload |
 | 能力提升／StatsBoost | 四名隊伍角色、16 項能力唯讀預檢通過／Read-only preflight passed for 16 fields across four party members | 寫入、戰鬥、存檔重讀／Writes, combat and save/reload |
+| 指定角色能力／CharacterStats | 12 名角色、48 項能力唯讀預檢；角色清單、四項輸入、摘要與最後取消已測，沒有寫入／Read-only preflight for 12 roles/48 stats; role list, four inputs, summary and final cancellation tested with no writes | 四項寫入／回復、預設備份位置、正式勾選、戰鬥、存檔重讀／Four-stat writes/rollback, default backup path, formal checkbox, combat, save/reload |
 | 蒂娜魔法／Terra spells | 究極保留 100%；神速 0→100%；使用者確認兩招可選用／Ultima stayed 100%; Quick 0→100%; user confirmed both selectable | 戰鬥施法、存檔重讀／Combat casts and save/reload |
 | 全魔石／AllMagicite | 4→27，新增 23 種逐項核對；使用者確認清單與裝備／4→27, all 23 additions verified; user confirmed menu/equipment | 召喚、學習、存檔重讀、後續劇情／Summons, learning, save/reload and later events |
 | 全狂怒／AllRages | 9→252，新增 243 種且全部進度 100%；其他技能與角色資料核對不變；使用者確認清單新增且可選用／9→252, 243 learned; all at 100%; unrelated skills and character data verified unchanged; user confirmed the expanded menu is selectable | 戰鬥效果、存檔重讀／Combat effects and save/reload |
@@ -213,6 +215,26 @@ The update compares other ability records individually, preserving repeated abil
 As before, it stops if permanent Strago is absent. Opening the update does not run it; it writes a JSON state snapshot in the Cheat Engine installation directory before applying and stops if writing fails. The same core Lua was tested through a local wrapper; the formal checkbox interface and default backup location were not separately exercised. Combat behavior, save/reload, full restart and other accounts/builds were not tested. Save to a new slot afterward to retain the abilities.
 
 [全青魔法說明／Lore notes](AllLores-README.txt) · [實測紀錄／Validation](AllLores-Validation.txt) · [24 招清單／Lore mapping](AllLores-list.txt)
+
+## 指定角色能力目標｜One-character stat targets
+
+`CharacterStats` 是獨立表：每次由名稱清單選擇一名正式角色，標示目前隊伍位置或後備，再分別輸入力量、敏捷、體力、魔力的目標值。以角色身分與職業辨識對象，支援 14 種正式角色身分，只列出當前存檔可辨識的記錄，不建立尚未出現的角色。它與 `StatsBoost` 的「目前隊伍每項增加 1–30」分開；相同目標重複執行不會繼續累加。
+
+`CharacterStats` is a separate table: select one permanent role by name, with current party position or Reserve shown, then enter individual Strength, Speed, Stamina and Magic targets. It identifies roles by status and job, recognizes the 14 permanent role identities, lists only recognized records present in the loaded save and does not create absent characters. It differs from `StatsBoost`, which adds 1–30 to current-party stats; repeated identical targets do not stack increases.
+
+目標是**不含裝備加成的永久能力**。每項範圍為該角色原生基值（至少 1）至 128，可降低先前提高的能力，但此版不支援低於原生基值。保留預設就不改該項；四項輸入完成後才顯示確認摘要，取消任何輸入或最後選否都不寫入。輸入 60 不代表畫面一定顯示 60：例如塞策不含裝備敏捷 57、裝備 +3、顯示 60，在此表輸入 60，裝備不變時預期顯示 63。
+
+Targets are **permanent stats before equipment**. Each range runs from the role's innate base (at least 1) to 128. Previously boosted stats may be reduced, but this version does not go below the innate base. Retain a default to preserve that stat; all four inputs precede the final confirmation, and cancelling an input or choosing No writes nothing. A target of 60 does not necessarily display as 60: Setzer at natural Speed 57 with equipment +3 displays 60; entering 60 here would normally display 63 with the same equipment.
+
+套用前保存文字快照並核對原值，只寫所選角色的四項永久能力加值，透過遊戲更新參數，失敗時嘗試還原。快照不是可載入的完整存檔，記憶體位址僅對當次程序有效；完成後需另存新欄位。開檔不執行，取消勾選不會還原。
+
+Before applying, it saves a text snapshot and rechecks original values. It writes only the selected role's four permanent stat bonuses, updates parameters through the game and attempts rollback on failure. Snapshots are not loadable full saves, and addresses are valid only for that process; save to a new slot afterward. Opening does not run the table, and disabling does not undo it.
+
+2026-10-16 已通過目前 12 名角色／48 項能力的唯讀預檢，並在不寫入模式完成實際選單與四項輸入測試。選擇塞策、四項輸入 60，摘要正確顯示 36→60、57→60、32→60、29→60；最後按否回報取消，原數值不變。**尚未實測新版四項寫入、回復流程、預設備份位置、正式 CT 勾選介面、戰鬥或存檔重讀**；之前塞策單項敏捷修改成功不代表這份四項流程已完成寫入實測。
+
+On 2026-10-16, live read-only preflight passed for the current 12 roles / 48 stats, and the actual role menu and four inputs were exercised in no-write mode. Selecting Setzer and entering 60 for all four correctly showed 36→60, 57→60, 32→60 and 29→60; choosing No reported cancellation and preserved the values. **The new four-stat write/rollback paths, default backup location, formal CT checkbox interface, combat and save/reload remain untested**; the earlier single-stat Setzer edit does not establish live write validation for this four-stat flow.
+
+[角色能力說明／Character stat notes](CharacterStats-README.txt) · [驗證紀錄／Validation](CharacterStats-Validation.txt)
 
 ## 實作與更新｜Implementation and updates
 
