@@ -18,6 +18,78 @@ Independent Cheat Engine tables for separate use. This README is bilingual; some
 
   The original 16-record assumption has been removed. Read-only preflight passed on the current save with 24 records. This does not establish compatibility with every story event or party combination.
 
+## Cheat Engine 安裝與版本｜Cheat Engine installation and versions
+
+### 實測組合｜Tested combination
+
+| 元件／Component | 本機實測版本／Locally tested version | 說明／Notes |
+|---|---|---|
+| FF6 Pixel Remaster | Steam Windows build **20265119** | CT 內建版本檢查，其他 build 會停止／Tables reject other builds |
+| Cheat Engine | **Windows 64-bit 7.7**，檔案版本／file version **7.7.0.10621** | 使用／Executable: `cheatengine-x86_64.exe` |
+| macOS 上的執行環境／Windows runtime on macOS | **CrossOver 26.3** | Cheat Engine、Windows Steam 與遊戲在同一個 bottle／CE, Windows Steam and the game share one bottle |
+| Mono collector | 上述 CE 安裝內附的 `autorun/monoscript.lua` 與 `autorun/dlls/MonoDataCollector64.dll` | CT 自動啟動 collector／Started automatically by the tables |
+
+以上 CE 版本來自本機已安裝執行檔的版本資訊，CrossOver 版本來自本機 App 資訊；這是實測環境，不代表最低版本需求。其他 CE／CrossOver 版本、原生 Windows、Mac 原生版 CE、Linux／Proton 均未在本儲存庫完成相同驗證。CT 裡的 `CheatEngineTableVersion="45"` 是檔案格式編號，不是要求 Cheat Engine 45。
+
+CE versions above come from the installed executable's version resources; CrossOver's version comes from the installed app metadata. This records the tested environment, not a minimum-version claim. Other CE/CrossOver versions, native Windows, native Mac CE and Linux/Proton have not undergone the same repository validation. `CheatEngineTableVersion="45"` is a table-format number, not a requirement for Cheat Engine 45.
+
+### 下載｜Download
+
+從 [Cheat Engine 官方下載頁](https://cheatengine.org/downloads.php)取得 **Windows 版**，若要重現此專案環境，選擇 7.7 並在安裝後由 `Help → About` 核對。此專案不附安裝程式；官方日後提供的版本可能改變。Mac 官方版 CE 與「Windows 版 CE 跑在 CrossOver」是不同使用方式，本專案實測後者。
+
+Get the **Windows version** from the [official Cheat Engine download page](https://cheatengine.org/downloads.php). To reproduce this setup, select 7.7 and check `Help → About` after installation. Installers are not bundled here, and official offerings may change. Native Mac CE and Windows CE running in CrossOver are different setups; this repository tested the latter.
+
+### Mac／CrossOver 安裝｜Installing on Mac with CrossOver
+
+1. 先讓 Windows Steam 與 FF6 在 CrossOver 的同一個 bottle 內正常執行。
+   First ensure Windows Steam and FF6 work in one CrossOver bottle.
+2. 選取該 bottle，使用 `Install Applications Into Bottle`，選擇下載的 Windows CE 安裝程式，確認安裝目標仍是遊戲所在 bottle。
+   Select that bottle, choose `Install Applications Into Bottle`, select the Windows CE installer and retain the game's bottle as the destination.
+3. 安裝後在同一個 bottle 使用 `Run Command → Browse`，選擇 `C:\Program Files\Cheat Engine\cheatengine-x86_64.exe` 執行；路徑依安裝位置調整。可用 `Save Command as a Launcher` 建立捷徑。
+   In the same bottle, use `Run Command → Browse` to launch `C:\Program Files\Cheat Engine\cheatengine-x86_64.exe`, adjusting the path if needed. `Save Command as a Launcher` creates a shortcut.
+4. 不要另外建立只有 CE 的 bottle，也不要只拷貝單一 exe 而漏掉 collector 檔案。
+   Do not isolate CE in a separate bottle or copy only its exe while omitting collector files.
+
+CrossOver 的按鈕名稱可能因版本／介面語言不同而略有差異。[CodeWeavers 官方操作手冊](https://www.codeweavers.com/support/docs/crossover-mac/index)說明 bottle、安裝及 Run Command 的操作。
+
+Button labels may vary by version/language. The [official CodeWeavers guide](https://www.codeweavers.com/support/docs/crossover-mac/index) covers bottles, installation and Run Command.
+
+### Windows 安裝｜Installing on Windows
+
+原生 Windows **尚未在此專案實測**。一般操作是安裝 Windows 64 位元 CE，從 Windows Steam 開啟 FF6，再依下方步驟連接遊戲。Windows 不使用 CrossOver；不能把這份操作指引視為已完成 Windows 相容性測試。
+
+Native Windows is **untested in this repository**. The general procedure is to install Windows 64-bit CE, start FF6 through Windows Steam, then attach as below. Windows does not use CrossOver; these directions are not a claim of completed Windows compatibility testing.
+
+### 第一次連接與開啟 CT｜First attachment and opening a CT
+
+1. 備份存檔，讀取 FF6 存檔，停在一般地圖並暫停操作。
+   Back up the save, load a game and remain idle on a normal field map.
+2. 在 CE 點左上方的電腦圖示，由程序清單選 `FINAL FANTASY VI.exe`／`FINAL FANTASY VI`，按 Open。不是選 Steam 或 Cheat Engine。
+   Click CE's computer icon, select `FINAL FANTASY VI.exe` / `FINAL FANTASY VI` in the process list and choose Open.
+3. 點資料夾圖示開啟需要的 `.CT`，確認項目預設未勾選；再啟用單一項目，依提示操作。
+   Open the desired `.CT` with the folder icon, confirm its entry starts unchecked, then enable one entry and follow its prompts.
+4. 這些 CT 會呼叫 `LaunchMonoDataCollector()`；不需要另外安裝 macOS Mono framework。FF6 使用 IL2CPP，CE 的 collector 也有 IL2CPP 支援，並非只供傳統 Mono 使用。參考 [CE 官方 collector 原始碼](https://github.com/cheat-engine/cheat-engine/blob/master/Cheat%20Engine/bin/autorun/monoscript.lua)。
+   These tables call `LaunchMonoDataCollector()`; no separate macOS Mono framework is needed. FF6 uses IL2CPP, which CE's collector also supports. See the [official collector source](https://github.com/cheat-engine/cheat-engine/blob/master/Cheat%20Engine/bin/autorun/monoscript.lua).
+5. 完成後重開相關選單核對；角色、技能、能力或道具修改確認正常後另存新欄位。成就專用表則依各自說明處理。
+   Reopen the relevant menu to verify. Save character/ability/stat/item changes to a new slot; follow individual instructions for achievement-only tables.
+
+### Mono 失敗或找不到遊戲時｜Mono failures or a missing game process
+
+- **遊戲重開後重新選程序。** CE 標題可能仍保留舊程序名稱，即使連線已失效。再次點電腦圖示，選目前的 FF6，重新開啟／啟用 CT。
+  **Reattach after restarting the game.** CE may retain the old process label after its connection becomes invalid. Select the current FF6 process again before reopening/enabling the table.
+- **先核對同一 bottle、64 位元 CE、已讀取存檔。** 不在主選單或戰鬥中套用；不要同時啟用多份修改。
+  **Check the bottle, 64-bit CE and loaded save.** Apply on a field map rather than the title screen or in battle, and avoid simultaneous edits.
+- **檢查安裝是否完整。** 保留 `autorun/monoscript.lua`、`autorun/dlls/MonoDataCollector64.dll` 等官方安裝檔；不要把不同 CE 版本的 collector 混用。
+  **Check the installation.** Keep the official `autorun/monoscript.lua`, `autorun/dlls/MonoDataCollector64.dll` and related files together; do not mix collector files from different CE versions.
+- **必要時手動測試 collector。** 連到目前遊戲後，可用 `Mono → Activate mono features` 檢查；若失敗，記下完整錯誤訊息及 CE／CrossOver／遊戲 build，不要反覆勾選 CT。[CE 官方 Mono 說明](https://www.cheatengine.org/forum/viewtopic.php?p=5546748)。
+  **If needed, test the collector manually.** After attaching to the current game, try `Mono → Activate mono features`. On failure, retain the full error and CE/CrossOver/game-build versions rather than repeatedly enabling the table. [Official CE Mono instructions](https://www.cheatengine.org/forum/viewtopic.php?p=5546748).
+- **版本檢查失敗時先停止。** 遊戲更新後的 build 需要重新驗證；不要刪掉 CT 版本檢查硬套舊表。
+  **Stop on a build mismatch.** A game update requires new validation; do not remove the table's build guard to force an old table to run.
+
+安裝與下載資訊核對日／Setup and download information checked: **2026-10-17**。這一節補充操作方式，未在本次重新安裝 CE／CrossOver，也未測試新的平台組合。
+
+This section documents the procedure; CE/CrossOver were not reinstalled and no new platform combination was tested during this documentation update.
+
 ## 檔案與用途｜Tables and effects
 
 | CT | 中文 | English |
