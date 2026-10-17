@@ -1,6 +1,6 @@
 # FF6 Pixel Remaster Cheat Engine Tables｜作弊表
 
-**Steam build 20265119 · CrossOver · 驗證日期／Validation dates: 2026-10-14–16**
+**Steam build 20265119 · CrossOver · 驗證日期／Validation dates: 2026-10-14–17**
 
 獨立 CT 檔案，依需要分開使用。README 提供中英雙語；部分附加清單與舊版使用說明仍以繁體中文撰寫。
 
@@ -113,6 +113,7 @@ This section documents the procedure; CE/CrossOver were not reinstalled and no n
 | [WorldVisitAchievement](FF6_PR_WorldVisitAchievement_20265119.CT) | 解鎖造訪所有地方成就；不傳送、不補造訪／劇情旗標 | Unlocks all-locations achievement without teleporting or visit/story flag edits |
 | [JokerAchievement](FF6_PR_JokerAchievement_20265119.CT) | 只解鎖致命鬼牌成就；不執行老虎機、不改角色與存檔統計 | Unlocks Joker’s Death achievement only; no Slots execution or character/save-stat edits |
 | [AllDances](FF6_PR_AllDances_20265119.CT) | 莫古學會全部 8 種舞蹈；補齊未精通項目，不改等級與能力值 | Teaches Mog all 8 dances, skipping mastered entries; levels and stats unchanged |
+| [CoralSync25](FF6_PR_CoralSync25_20265119.CT) | 珊瑚碎片與餵食劇情計數同步設為 25；正常餵寶箱，已確認讓路 | Sets Coral and its feeding counter to 25; normal feeding user-confirmed to open passage |
 
 ## 使用方式｜How to use
 
@@ -317,6 +318,22 @@ Uses IL2CPP/Mono metadata to locate fields and methods, searching the actual cla
 請重新下載修正版 CT；既有下載檔不會自動更新。
 
 Re-download updated CT files; existing downloads do not update automatically.
+
+## 珊瑚碎片與餵食計數｜Coral and the feeding counter
+
+[CoralSync25](FF6_PR_CoralSync25_20265119.CT) 是獨立 CT，將珊瑚碎片與事件使用的 ScenarioVariable[7] 都設為 **25**，已有更多也會降至 25。僅在埃博希岩島洞窟、相關劇情已觸發、斯特拉哥在隊伍且對話關閉時使用；不自動辨識地圖／任務階段。開檔不執行，勾選一次後回遊戲正常餵食，成功讓路後另存新欄位。取消勾選不會還原。
+
+This standalone table sets both Coral and the event's ScenarioVariable[7] to **25**, reducing higher values too. Use only in Ebot's Rock with the quest triggered, Strago present and dialogue closed; map/quest context is not automatically detected. Opening does not execute it. Enable once, feed the chest normally, then save to a new slot after passage opens. Disabling does not undo the edit.
+
+本版拾取事件分別增加道具與劇情計數；餵食腳本 sc_e_0943 檢查獨立計數是否達 22，因此只加背包數量仍可能被吃光並說不夠。本表同步兩項，保留正常事件判定，不直接開通道路。相同核心已套用並核對兩項由 0 → 25，使用者確認「寶箱已吃飽並讓路」。
+
+Pickup events separately increase the item and scenario counter. The feeding script sc_e_0943 checks the independent counter against 22, so inventory-only grants can still be consumed without satisfying the chest. This table synchronizes both values and leaves normal event conditions in place rather than opening passage directly. The core was applied and verified at 0 → 25 for both values; the user confirmed normal feeding satisfied the chest and opened passage.
+
+執行前建立本機狀態與事件快照，無法寫入就停止；快照不是遊戲存檔，也沒有自動還原。其他道具、角色、統計、成就與事件資料均核對不變。正式勾選包裝／預設備份位置未另行實測；存檔重讀、完整重啟與其他版本未測。
+
+Local state and event snapshots are required before mutation; write failure stops execution. They are not loadable saves and provide no automatic rollback. Other items, characters, statistics, achievements and event data are verified unchanged. The published checkbox wrapper/default backup location were not separately live-tested; save reloads, full restarts and other builds are untested.
+
+[使用說明／Usage](CoralSync25-README.txt) · [實測紀錄／Validation](CoralSync25-Validation.txt)
 
 ## 清單與補充說明｜Lists and supplementary notes
 

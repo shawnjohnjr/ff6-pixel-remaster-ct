@@ -1,0 +1,30 @@
+CoralSync25 — 實測紀錄／Validation
+Date: 2026-10-17
+Game: Steam Windows build 20265119
+Environment: Cheat Engine Windows x64 7.7 / CrossOver 26.3
+
+調查／Investigation
+從本機遊戲資源解出事件指令，將繁中「不夠」對話代碼 E0943_00_540_a_06 對應至 sc_e_0943，確認 ScenarioVariable[7] < 22 分支；拾取腳本另行增加道具與計數。
+Extracted local event instructions and matched the Traditional Chinese insufficient-coral message E0943_00_540_a_06 to sc_e_0943. Confirmed the ScenarioVariable[7] < 22 branch and separate item/counter updates in pickup scripts.
+
+套用前／Before
+Coral content ID 47: 0
+ScenarioVariable[7]: 0
+Read-only category mapping confirmed ScenarioVariable = 8; full serialized global state matched the live getter.
+
+套用後／After
+Coral content ID 47: 25
+ScenarioVariable[7]: 25
+RESULT true nil
+核對一般背包、其他重要道具、角色、能力、Gil、擊破數、魔石與成就不變；完整序列化事件資料僅 global[7] 變為 25。修改前的狀態與事件快照留在本機，不公開。
+Verified that normal inventory, other important items, characters, stats, Gil, kills, magicite and achievements were unchanged; only global[7] changed in serialized event state. Private before-state snapshots remain local and are not published.
+
+遊戲內實測／In-game confirmation
+使用者透過遊戲原本的對話餵食後回報：「寶箱已吃飽並讓路」。
+The user fed the chest through the normal dialogue and confirmed that it was satisfied and moved aside.
+這是使用者確認；未另外擷取餵食後的記憶體快照，也未測存檔重讀或完整重啟。
+This is user confirmation; no separate post-feeding memory snapshot was captured, and save reload/full restart were not tested.
+
+發佈包裝／Published wrapper
+核心由已成功執行的測試 CT 擷取，只更換可攜式備份路徑、加入成功提示與預設關閉的勾選入口。正式包裝／預設備份位置未另行執行實測。
+Core extracted from the successful test CT; publication changes are portable backup paths, a success message and an initially inactive checkbox entry. Published wrapper/default backup location not separately live-tested.
