@@ -102,6 +102,7 @@ This section documents the procedure; CE/CrossOver were not reinstalled and no n
 | [Supplies](FF6_PR_Supplies_20265119.CT) | 特級乙太、終極萬靈藥、傳送石、魔石碎片，各自選擇補至 1–99 | Separate target totals of 1–99 for X-Ether, Megalixir, Teleport Stone and Magicite Shard |
 | [TerraUltimaQuick](FF6_PR_TerraUltimaQuick_20265119.CT) | 僅讓蒂娜學會究極與神速 | Teaches only Ultima and Quick to Terra |
 | [AllMagicite](FF6_PR_AllMagicite_20265119.CT) | 補齊全部 27 種魔石；不自動學會魔法 | Grants all 27 magicite; does not teach spells automatically |
+| [AllMagic](FF6_PR_AllMagic_20265119.CT) | 12 名正式角色各學滿 54 種一般魔法，含後備；Gogo／烏瑪羅不改；已確認可選用 | Learns all 54 spells for 12 eligible permanent roles, including reserves; Gogo/Umaro unchanged; user-confirmed selectable |
 | [AllRages](FF6_PR_AllRages_20265119.CT) | 嘎嗚學會 252 種狂怒 | Teaches Gau all 252 Rages |
 | [AllLores](FF6_PR_AllLores_20265119.CT) | 斯特拉哥學會全部 24 招青魔法；已實測且使用者確認可選用 | Teaches Strago all 24 Lores; applied and user-confirmed selectable |
 | [AllBestiary](FF6_PR_AllBestiary_20265119.CT) | 全圖鑑 346/346，並透過遊戲正常檢查圖鑑成就 | Completes the 346-entry bestiary and invokes the game's normal bestiary achievement check |
@@ -334,6 +335,26 @@ Pickup events separately increase the item and scenario counter. The feeding scr
 Local state and event snapshots are required before mutation; write failure stops execution. They are not loadable saves and provide no automatic rollback. Other items, characters, statistics, achievements and event data are verified unchanged. The published checkbox wrapper/default backup location were not separately live-tested; save reloads, full restarts and other builds are untested.
 
 [使用說明／Usage](CoralSync25-README.txt) · [實測紀錄／Validation](CoralSync25-Validation.txt)
+
+## 全員一般魔法｜All normal spells
+
+[AllMagic](FF6_PR_AllMagic_20265119.CT) 是獨立 CT，依角色身分辨識 12 名可正常學魔法的正式角色，包含已加入的後備成員；尚未加入的角色跳過，不建立角色。透過遊戲 LearningAbility 補齊各 **54 種一般魔法**，已學滿的項目保留；不改等級、能力值、魔石與其他技能。
+
+This standalone table identifies the 12 permanent roles that normally learn magic, including recruited reserves. Unjoined roles are skipped without creating characters. It uses the game's LearningAbility method to learn all **54 normal spells** for each target, retaining mastered spells without editing levels, stats, magicite or other skills.
+
+格格（Gogo）使用同隊成員已學會的魔法，烏瑪羅（Umaro）保留自動戰鬥；本表不寫入這兩人的一般魔法紀錄，也不更換任何戰鬥指令。青魔法、狂怒、舞蹈與幻獸召喚另有機制。
+
+Gogo uses spells known by current party members; Umaro retains automatic combat. The table does not write normal-magic records for either or change battle commands. Lores, Rages, Dances and esper summons are separate systems.
+
+開檔不執行；先備份存檔，連接遊戲並停在一般地圖、關閉對話與選單後勾選一次。執行前在 Cheat Engine 安裝目錄建立狀態快照，無法寫入就停止。快照不是可載入的遊戲存檔，沒有自動復原；取消勾選不會還原學習。完成後確認魔法清單，另存新欄位。
+
+Opening does not execute it. Back up saves, attach to the game, remain idle on a field map with dialogue and menus closed, then enable once. A state snapshot is required in the Cheat Engine installation directory before learning; write failure stops execution. It is not a loadable save and provides no automatic rollback; disabling does not undo learning. Confirm spell lists and save to a new slot.
+
+2026-10-17：相同核心已套用，補齊 **583 項**學習紀錄，12 人各 54 種均核對學滿。其他技能、指令、能力值、背包、金錢、擊破數、圖鑑、劇情與成就核對不變。使用者確認「魔法已齊全，可以選用，遊戲正常」。正式勾選包裝／預設備份目錄未另行實測；存檔重讀、完整重啟與其他版本未測。
+
+2026-10-17: The same core learned **583 entries**, verifying 54 mastered spells for each of 12 roles. Unrelated skills, commands, stats, inventory, Gil, kill counts, bestiary, story state and achievements were unchanged. The user confirmed complete, selectable spells and normal gameplay. The standalone checkbox wrapper/default backup directory were not separately live-tested; save reloads, full restarts and other builds are untested.
+
+[使用說明／Usage](AllMagic-README.txt) · [54 種清單／Spell list](AllMagic-list.txt) · [實測紀錄／Validation](AllMagic-Validation.txt)
 
 ## 清單與補充說明｜Lists and supplementary notes
 

@@ -1,0 +1,405 @@
+<?xml version='1.0' encoding='utf-8'?>
+<CheatTable CheatEngineTableVersion="45">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"12名正式角色學會全部54種一般魔法（含後備；未加入跳過；Gogo／烏瑪羅不改）/ All 54 spells for 12 eligible permanent roles, including reserves; unjoined skipped; Gogo/Umaro unchanged"</Description>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+local FF6_ALL_MAGIC_READ_ONLY=false
+
+assert(getOpenedProcessID()~=0,'Attach to FINAL FANTASY VI.exe')
+local base=getAddressSafe('GameAssembly.dll');assert(base,'GameAssembly.dll missing')
+local pe=base+readInteger(base+60)
+assert(readInteger(pe+8)==1745316249 and readInteger(pe+80)==42369024,'Requires FF6 PR Steam build 20265119')
+assert(LaunchMonoDataCollector(),'Mono collector unavailable')
+local classes,fields,methods={},{},{}
+local function cls(ns,n)
+ local key=ns..'.'..n
+ if not classes[key] then local c=mono_findClass(ns,n);assert(c and c~=0,'Class missing: '..key);classes[key]=c end
+ return classes[key]
+end
+local function fld(c,n,t)
+ if not fields[c] then fields[c]=assert(mono_class_enumFields(c,true),'Field lookup failed') end
+ for _,v in ipairs(fields[c]) do if v.name==n then assert(not t or v.typename==t,'Field type mismatch: '..n);return v end end
+ error('Missing field '..n)
+end
+local function meth(c,n,sig)
+ local current=c
+ while current and current~=0 do
+  if not methods[current] then methods[current]=assert(mono_class_enumMethods(current),'Method lookup failed') end
+  for _,m in ipairs(methods[current]) do if m.name==n and mono_method_getSignature(m.method)==sig then return m.method end end
+  current=mono_class_getParent(current)
+ end
+ error('Missing method '..n..' ('..sig..')')
+end
+local function call(m,o,args)
+ local r,e=mono_invoke_method(0,m,o or 0,args or {});assert(e==nil,tostring(e));return r
+end
+local function ptr(a,c)
+ local p=readPointer(a);assert(p and p&gt;65536,'Invalid pointer')
+ if c then assert(readPointer(p)==c,'Object type mismatch') end
+ return p
+end
+local function list(o,max)
+ local n=readInteger(o+0x18);local a=ptr(o+0x10)
+ assert(n and n&gt;=0 and n&lt;=max,'Invalid list count')
+ local capacity=readInteger(a+0x18);assert(capacity and capacity&gt;=n and capacity&lt;=512,'Invalid capacity')
+ local r={};for i=0,n-1 do r[#r+1]=ptr(a+0x20+i*8) end;return r
+end
+local um=cls('Last.Management','UserDataManager')
+local u=mono_class_getStaticFieldValue(um,fld(um,'instance').field)
+assert(type(u)=='number' and u&gt;65536 and readPointer(u)==um,'Load a save first')
+local us=cls('Last.Data.User','UserSaveData')
+local save=ptr(u+fld(um,'saveData').offset,us)
+local cc=cls('Last.Data.User','OwnedCharacterData')
+local cs=cls('Last.Data.User','OwnedCharacterSaveData')
+local pc=cls('Last.Data','PlayerCharacterParameter')
+local chars={}
+for _,ch in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),512)) do
+ assert(readPointer(ch)==cc,'Unexpected character')
+ local s=ptr(ch+fld(cc,'saveData').offset,cs)
+ local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+ assert(id and id&gt;=1 and not chars[id],'Invalid character ID')
+ chars[id]={object=ch,save=s,id=id}
+end
+local corps=cls('Last.Data.User','Corps');local corpsSave=cls('Last.Data.User','CorpsSaveData')
+local party={};local seen={}
+for _,o in ipairs(list(ptr(u+fld(um,'&lt;corpsList&gt;k__BackingField').offset),4)) do
+ assert(readPointer(o)==corps,'Unexpected party slot')
+ local s=ptr(o+fld(corps,'saveData').offset,corpsSave)
+ local id=readInteger(s+fld(corpsSave,'characterId','System.Int32').offset)
+ assert(id and id&gt;=0,'Invalid party ID')
+ if id~=0 then assert(chars[id] and not seen[id],'Invalid or repeated party character');seen[id]=true;party[#party+1]=chars[id] end
+end
+assert(#party&gt;0,'Load a save and stop on the map')
+
+
+local preserved={}
+local function capture(address)
+ local n=readInteger(address);assert(n~=nil,'Cannot capture state');preserved[#preserved+1]={address,n}
+end
+capture(save+fld(us,'owendGil','System.Int32').offset)
+local psClass=cls('Last.Data.User','PlayerCharacterParameterSaveData')
+for _,ch in pairs(chars) do
+ capture(ch.save+fld(cs,'currentExp','System.Int32').offset)
+ local p=ptr(ch.object+fld(cc,'parameter').offset,pc)
+ local ps=ptr(p+fld(pc,'saveData').offset,psClass)
+ for _,name in ipairs({'&lt;BaseLevel&gt;k__BackingField','currentHP','currentMP','&lt;BasePower&gt;k__BackingField','&lt;BaseAgility&gt;k__BackingField','&lt;BaseVitality&gt;k__BackingField','&lt;BaseMagic&gt;k__BackingField'}) do capture(p+fld(pc,name,'System.Int32').offset) end
+ for _,name in ipairs({'addtionalPower','addtionalAgility','addtionalVitality','addtionalMagic'}) do
+  capture(ps+fld(psClass,name,'System.Int32').offset)
+ end
+end
+
+
+for _,ch in pairs(chars) do capture(ch.save+fld(cs,'magicStoneId','System.Int32').offset) end
+capture(save+fld(us,'monstersKilledCount','System.Int32').offset)
+for _,name in ipairs({'&lt;CurrentAreaType&gt;k__BackingField','&lt;CurrentAreaId&gt;k__BackingField','&lt;CurrentMapId&gt;k__BackingField'}) do capture(u+fld(um,name).offset) end
+
+local function roster()
+ local result={}
+ for _,o in ipairs(list(ptr(u+fld(um,'&lt;OwnedCharacterList&gt;k__BackingField').offset),512)) do
+  assert(readPointer(o)==cc,'Invalid character object')
+  local s=ptr(o+fld(cc,'saveData').offset,cs)
+  local id=readInteger(s+fld(cs,'id','System.Int32').offset)
+  assert(id and id&gt;=1 and not result[id],'Invalid character ID')
+  result[id]={object=o,save=s,id=id,status=readInteger(s+fld(cs,'characterStatusId','System.Int32').offset),job=readInteger(s+fld(cs,'jobId','System.Int32').offset)}
+ end
+ return result
+end
+local ac=cls('Last.Data.User','OwnedAbility');local ass=cls('Last.Data.User','OwnedAbilitySaveData')
+local function abilityRecords(o)
+ local records={}
+ for _,v in ipairs(list(ptr(o+fld(cc,'&lt;OwnedAbilityList&gt;k__BackingField').offset),512)) do
+  assert(readPointer(v)==ac,'Invalid ability object')
+  local s=ptr(v+fld(ac,'saveData').offset,ass)
+  local id=readInteger(s+fld(ass,'abilityId','System.Int32').offset)
+  local cid=readInteger(s+fld(ass,'contentId','System.Int32').offset)
+  local skill=readInteger(s+fld(ass,'skillLevel','System.Int32').offset)
+  assert(id and id&gt;0 and cid and cid&gt;0 and skill,'Invalid ability record')
+  records[#records+1]={id=id,content=cid,skill=skill}
+ end
+ return records
+end
+local function snapshot()
+ local result={}
+ for id,ch in pairs(roster()) do
+  result[id]={status=ch.status,job=ch.job,exp=readInteger(ch.save+fld(cs,'currentExp','System.Int32').offset),abilities=abilityRecords(ch.object),commands=list(ptr(ch.object+fld(cc,'&lt;CommandList&gt;k__BackingField').offset),64)}
+ end
+ return result
+end
+local function textValue(p)
+ if type(p)=='string' then return p end
+ assert(type(p)=='number' and p&gt;65536,'Invalid string pointer')
+ local n=readInteger(p+16);assert(n and n&gt;=0 and n&lt;=1000000,'Invalid string length')
+ return assert(readString(p+20,n*2,true),'Cannot read string')
+end
+local function readIntList(o,max)
+ local n=readInteger(o+24);local a=ptr(o+16);local capacity=readInteger(a+24)
+ assert(n and n&gt;=0 and n&lt;=max and capacity and capacity&gt;=n and capacity&lt;=8192,'Invalid integer list')
+ local r={};for i=0,n-1 do r[#r+1]=readInteger(a+32+i*4) end;return r
+end
+local function equalLists(a,b)
+ assert(#a==#b,'List size changed');for i,v in ipairs(a) do assert(b[i]==v,'List contents changed') end
+end
+local function dictionary(o,stringKeys)
+ local c=readPointer(o)
+ local n=readInteger(o+fld(c,'count','System.Int32').offset)
+ local free=readInteger(o+fld(c,'freeCount','System.Int32').offset)
+ assert(n and n&gt;=0 and n&lt;=2048 and free and free&gt;=0 and free&lt;=n,'Invalid dictionary count')
+ local a=readPointer(o+fld(c,'entries').offset)
+ if n==0 then return {},0 end
+ assert(a and a&gt;65536,'Dictionary entries missing')
+ local capacity=readInteger(a+24);assert(capacity and capacity&gt;=n and capacity&lt;=4096,'Invalid dictionary capacity')
+ local result={};local count=0;local stride=stringKeys and 24 or 16
+ for i=0,n-1 do
+  local e=a+32+i*stride;local hash=readInteger(e)
+  if hash and hash&lt;2147483648 then
+   local key=stringKeys and textValue(ptr(e+8)) or readInteger(e+8)
+   local value=readInteger(e+(stringKeys and 16 or 12))
+   assert(key and value and not result[key],'Invalid or duplicate dictionary entry')
+   result[key]=value;count=count+1
+  end
+ end
+ assert(count==n-free,'Dictionary entry count mismatch')
+ return result,count
+end
+
+local magicTargets={}
+local magicContents={[31]=361,[32]=362,[33]=363,[34]=364,[35]=365,[36]=366,[37]=367,[38]=368,[39]=369,[40]=370,[41]=371,[42]=372,[43]=373,[44]=374,[45]=375,[46]=376,[47]=377,[48]=378,[49]=379,[50]=380,[51]=381,[52]=382,[53]=383,[54]=384,[55]=385,[56]=386,[57]=387,[58]=388,[59]=389,[60]=390,[61]=391,[62]=392,[63]=393,[64]=394,[65]=395,[66]=396,[67]=397,[68]=398,[69]=399,[70]=400,[71]=401,[72]=402,[73]=403,[74]=404,[75]=405,[76]=406,[77]=407,[78]=408,[79]=409,[80]=410,[81]=411,[82]=412,[83]=413,[84]=414}
+local function magicState(o)
+ local result={}
+ for _,v in ipairs(abilityRecords(o)) do
+  if magicContents[v.id] then assert(v.content==magicContents[v.id] and not result[v.id],'Unexpected or duplicate magic record');result[v.id]=v end
+ end
+ return result
+end
+local function otherAbilities(records,id)
+ local result={}
+ for _,v in ipairs(records) do if not magicTargets[id] or not magicContents[v.id] then result[#result+1]=v end end
+ return result
+end
+local characterBefore
+local function verifyCharacters()
+ local after=snapshot()
+ for id,old in pairs(characterBefore) do
+  local now=assert(after[id],'Character removed')
+  assert(now.status==old.status and now.job==old.job and now.exp==old.exp,'Character identity/job/EXP changed')
+  equalLists(old.commands,now.commands)
+  local left,right=otherAbilities(old.abilities,id),otherAbilities(now.abilities,id)
+  assert(#left==#right,'Unrelated ability count changed')
+  for i,v in ipairs(left) do local n=right[i];assert(n.id==v.id and n.content==v.content and n.skill==v.skill,'Unrelated ability changed') end
+  if magicTargets[id] then
+   local current=magicState(assert(roster()[id]).object)
+   for _,v in ipairs(old.abilities) do if magicContents[v.id] then
+    assert(current[v.id] and current[v.id].skill&gt;=v.skill,'Existing magic learning regressed')
+   end end
+  end
+ end
+ for id in pairs(after) do assert(characterBefore[id],'Unexpected new character') end
+ for _,v in ipairs(preserved) do assert(readInteger(v[1])==v[2],'Character parameters, magicite or counters changed') end
+end
+
+local heldGil=readInteger(save+fld(us,'owendGil','System.Int32').offset)
+local lifetimeGil=readInteger(save+fld(us,'totalGil','System.Int32').offset)
+assert(heldGil and heldGil&gt;=0 and lifetimeGil and lifetimeGil&gt;=0,'Invalid Gil counters')
+capture(save+fld(us,'totalGil','System.Int32').offset)
+local mainKills=readInteger(save+fld(us,'monstersKilledCount','System.Int32').offset)
+assert(mainKills and mainKills&gt;=0,'Invalid main kill counter')
+characterBefore=snapshot()
+local bmClass=cls('Last.Management','PictureBookSaveManager')
+local bm=mono_class_getStaticFieldValue(bmClass,fld(bmClass,'instance').field)
+assert(type(bm)=='number' and bm&gt;65536 and readPointer(bm)==bmClass,'Bestiary unavailable')
+local bdClass=cls('Last.Systems.Save','PictureBookSaveData')
+local bd=ptr(bm+fld(bmClass,'&lt;SaveData&gt;k__BackingField').offset,bdClass)
+local dictAddress=bd+fld(bdClass,'&lt;MonsterDefeats&gt;k__BackingField').offset
+local originalDict=ptr(dictAddress);local monsters,count=dictionary(originalDict,false)
+local total=readInteger(bd+fld(bdClass,'totalSubjugationCount','System.Int32').offset)
+assert(total and total&gt;=0,'Invalid bestiary total')
+local sum=0;for _,n in pairs(monsters) do assert(n&gt;=0 and n&lt;2147483648,'Invalid per-monster count');sum=sum+n end
+local bookFlags=readIntList(ptr(bd+fld(bdClass,'&lt;ScenarioFlags&gt;k__BackingField').offset),8192)
+local dc=cls('Last.Interpreter','DataStorage');local data=call(meth(dc,'get_Instance',''),0)
+assert(type(data)=='number' and data&gt;65536 and readPointer(data)==dc,'Map unavailable')
+local serialize=meth(dc,'Serialize','')
+local mapBefore=textValue(call(serialize,data))
+local stones=readIntList(ptr(u+fld(um,'&lt;OwnedMagicStoneList&gt;k__BackingField').offset),64)
+local steamClass=cls('Last.Management','SteamSDKManager')
+local steam=mono_class_getStaticFieldValue(steamClass,fld(steamClass,'instance').field)
+assert(type(steam)=='number' and steam&gt;65536 and readPointer(steam)==steamClass,'Steam unavailable')
+assert(readBytes(steam+fld(steamClass,'isInitialze','System.Boolean').offset,1)==1,'Steam must be initialized')
+local getAchievements=meth(steamClass,'GetAllAchievementsOnPlatform','')
+local function achievements() return dictionary(call(getAchievements,steam),true) end
+local beforeSteam,beforeCount=achievements();assert(beforeCount==37,'Unexpected achievement count')
+local function inventoryQuantities(field)
+ local d=ptr(u+fld(um,field or 'normalOwnedItems').offset);local c=readPointer(d)
+ local n=readInteger(d+fld(c,'count').offset);local free=readInteger(d+fld(c,'freeCount').offset)
+ assert(n and n&gt;=0 and n&lt;=2048 and free and free&gt;=0 and free&lt;=n,'Invalid inventory dictionary')
+ if n==0 then return {} end
+ local a=ptr(d+fld(c,'entries').offset);local cap=readInteger(a+24);assert(cap and cap&gt;=n and cap&lt;=4096,'Invalid inventory capacity')
+ local result={};local count=0
+ for i=0,n-1 do
+  local e=a+32+i*24;local hash=readInteger(e)
+  if hash and hash&lt;2147483648 then
+   local id=readInteger(e+8);local item=ptr(e+16)
+   assert(id and id&gt;0 and not result[id],'Duplicate or invalid inventory ID')
+   local quantity=call(meth(readPointer(item),'get_Count',''),item)
+   assert(type(quantity)=='number' and quantity&gt;=0 and quantity&lt;=99,'Invalid inventory quantity')
+   result[id]=quantity;count=count+1
+  end
+ end
+ assert(count==n-free,'Inventory record count mismatch');return result
+end
+
+local inventoryBefore=inventoryQuantities()
+local importantBefore=inventoryQuantities('importantOwendItems')
+local expectedInventory={};for id,n in pairs(inventoryBefore) do expectedInventory[id]=n end
+local function verifyGame()
+ local keysNow=inventoryQuantities('importantOwendItems')
+ for id,n in pairs(importantBefore) do assert(keysNow[id]==n,'Important item changed') end
+ for id in pairs(keysNow) do assert(importantBefore[id]~=nil,'Important item added') end
+ local now=inventoryQuantities()
+ for id,n in pairs(expectedInventory) do assert(now[id]==n,'Inventory count changed: '..id) end
+ for id in pairs(now) do assert(expectedInventory[id]~=nil,'Inventory record added: '..id) end
+ assert(readInteger(save+fld(us,'owendGil').offset)==heldGil,'Held Gil changed')
+ assert(readInteger(save+fld(us,'totalGil').offset)==lifetimeGil,'Lifetime Gil changed')
+ assert(ptr(bm+fld(bmClass,'&lt;SaveData&gt;k__BackingField').offset,bdClass)==bd,'Bestiary save object changed')
+ assert(readInteger(save+fld(us,'monstersKilledCount').offset)==mainKills,'Main-save kills changed')
+ assert(readInteger(bd+fld(bdClass,'totalSubjugationCount').offset)==total,'Bestiary total changed')
+ assert(ptr(dictAddress)==originalDict,'Monster dictionary replaced')
+ local now,nowCount=dictionary(originalDict,false);assert(nowCount==count,'Monster record count changed')
+ for id,n in pairs(monsters) do assert(now[id]==n,'Individual monster count changed: '..id) end
+ equalLists(bookFlags,readIntList(ptr(bd+fld(bdClass,'&lt;ScenarioFlags&gt;k__BackingField').offset),8192))
+ assert(textValue(call(serialize,data))==mapBefore,'Map/scenario/treasure state changed')
+ equalLists(stones,readIntList(ptr(u+fld(um,'&lt;OwnedMagicStoneList&gt;k__BackingField').offset),64))
+ verifyCharacters()
+end
+
+
+local roleNames={'蒂娜 / Terra','洛克 / Locke','凱嚴 / Cyan','暗影 / Shadow','埃德加 / Edgar','馬修 / Sabin','塞麗絲 / Celes','斯特拉格斯 / Strago','瑞姆 / Relm','塞策 / Setzer','莫古 / Mog','嘎嗚 / Gau'}
+local byRole={}
+for id,ch in pairs(roster()) do
+ if ch.status&gt;=1 and ch.status&lt;=12 and ch.job==ch.status then
+  assert(not byRole[ch.status],'Duplicate permanent role')
+  magicTargets[id]=ch;byRole[ch.status]=ch
+ end
+end
+local targetCount=0
+local skills={
+{31,361,"療傷"},
+{32,362,"中療傷"},
+{33,363,"超療傷"},
+{34,364,"復活"},
+{35,365,"大復活"},
+{36,366,"解毒"},
+{37,367,"復原"},
+{38,368,"再生"},
+{39,369,"重生"},
+{40,370,"火焰"},
+{41,371,"暴雪"},
+{42,372,"雷電"},
+{43,373,"施毒"},
+{44,374,"吸血"},
+{45,375,"中火焰"},
+{46,376,"中暴雪"},
+{47,377,"中雷電"},
+{48,378,"毒化"},
+{49,379,"大火焰"},
+{50,380,"大暴雪"},
+{51,381,"大雷電"},
+{52,382,"石化"},
+{53,383,"致死一擊"},
+{54,384,"神聖"},
+{55,385,"核爆"},
+{56,386,"重力"},
+{57,387,"強重力"},
+{58,388,"異次元"},
+{59,389,"隕石"},
+{60,390,"究極"},
+{61,391,"地槌"},
+{62,392,"龍捲風"},
+{63,393,"熔毀"},
+{64,394,"窺伺探測"},
+{65,395,"緩慢"},
+{66,396,"消魔"},
+{67,397,"沉默"},
+{68,398,"物防護"},
+{69,399,"催眠"},
+{70,400,"混亂"},
+{71,401,"急速"},
+{72,402,"停止"},
+{73,403,"狂暴"},
+{74,404,"浮空"},
+{75,405,"河童"},
+{76,406,"反射"},
+{77,407,"魔防護"},
+{78,408,"隱形"},
+{79,409,"強加速"},
+{80,410,"廣緩慢"},
+{81,411,"攝魔"},
+{82,412,"傳送"},
+{83,413,"神速"},
+{84,414,"驅魔"},
+
+}
+local planned=0
+local initial={}
+for role=1,12 do
+ local ch=byRole[role]
+ if ch then
+  targetCount=targetCount+1;initial[ch.id]=magicState(ch.object)
+  local learned=0
+  for _,v in ipairs(skills) do local m=initial[ch.id][v[1]];if m and m.skill&gt;=100 then learned=learned+1 else planned=planned+1 end end
+  print('ROLE',role,roleNames[role],'record',ch.id,'learned',learned,'of',54)
+ else print('SKIP unjoined role',role,roleNames[role]) end
+end
+assert(targetCount&gt;0,'No eligible permanent characters')
+local clientClass=cls('Last.Management','OwnedCharacterClient')
+local learn=meth(clientClass,'LearningAbility','System.Int32,System.Int32')
+local ctor=meth(clientClass,'.ctor','')
+verifyGame()
+print('PLAN',targetCount,'roles',54,'spells each',planned,'learning calls; Gogo/Umaro unchanged')
+if FF6_ALL_MAGIC_READ_ONLY then print('ALL MAGIC PREFLIGHT VERIFIED');return end
+local function encode(v)
+ if type(v)=='number' then return tostring(v) end
+ assert(type(v)=='table','Unsupported snapshot value')
+ local rows={}
+ for k,x in pairs(v) do assert(tostring(k):match('^[a-zA-Z0-9_]+$'),'Invalid snapshot key');rows[#rows+1]='"'..tostring(k)..'":'..encode(x) end
+ table.sort(rows);return '{'..table.concat(rows,',')..'}'
+end
+local folder=FF6_ALL_MAGIC_BACKUP_DIR or getCheatEngineDir()
+assert(type(folder)=='string' and #folder&gt;0,'No backup directory')
+if not folder:match('[/\\]$') then folder=folder..'/' end
+local backup=folder..'FF6_AllMagic_before_'..os.date('%Y%m%d_%H%M%S')..'_'..getTickCount()..'.json'
+local f=assert(io.open(backup,'wb'),'Cannot create snapshot')
+assert(f:write(encode({characters=characterBefore,magic=initial,inventory=inventoryBefore,importantItems=importantBefore,heldGil=heldGil,lifetimeGil=lifetimeGil,mainKills=mainKills,achievements=beforeSteam})));f:close()
+print('BACKUP',backup)
+local client=mono_object_new(clientClass);assert(type(client)=='number' and client&gt;65536 and readPointer(client)==clientClass,'Cannot create character client')
+call(ctor,client);verifyGame()
+local added=0
+for role=1,12 do
+ local ch=byRole[role]
+ if ch then
+  for _,v in ipairs(skills) do
+   local m=initial[ch.id][v[1]]
+   if not m or m.skill&lt;100 then call(learn,client,{ch.id,v[1]});added=added+1 end
+  end
+  local final=magicState(ch.object)
+  for _,v in ipairs(skills) do assert(final[v[1]] and final[v[1]].skill&gt;=100,'Magic learning incomplete: '..roleNames[role]..' '..v[3]) end
+  print('ROLE VERIFIED',role,roleNames[role],54,'fully learned')
+ end
+end
+verifyGame()
+local after,n=achievements();assert(n==beforeCount,'Achievement count changed')
+for k,v in pairs(beforeSteam) do assert(after[k]==v,'Achievement changed: '..k) end
+print('ALL MAGIC VERIFIED',targetCount,'roles',54,'spells each',added,'learned; unrelated skills, commands, stats, items, counters, map and achievements unchanged')
+if not FF6_ALL_MAGIC_SILENT then showMessage('已補齊 '..targetCount..' 名角色的全部54種一般魔法。請重開魔法選單並另存新欄位。\nAll 54 spells learned for '..targetCount..' eligible roles. Reopen Magic and save to a new slot.\nGogo/Umaro unchanged. Disabling does not undo learning.\nBackup: '..backup) end
+
+{$asm}
+[DISABLE]
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols />
+</CheatTable>

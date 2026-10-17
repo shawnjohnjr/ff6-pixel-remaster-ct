@@ -1,0 +1,23 @@
+FF6 AllMagic — 實測紀錄／Validation
+2026-10-17 · Steam build 20265119 · CE Windows x64 7.7 / CrossOver 26.3
+
+修改前／Before
+蒂娜 Terra 20/54; 洛克 Locke 6/54; 凱嚴 Cyan 1/54; 暗影 Shadow 3/54;
+埃德加 Edgar 4/54; 馬修 Sabin 0/54; 塞麗絲 Celes 17/54; 斯特拉格斯 Strago 5/54;
+瑞姆 Relm 0/54; 塞策 Setzer 5/54; 莫古 Mog 0/54; 嘎嗚 Gau 4/54.
+
+套用／Application
+使用者確認已停在一般地圖後，以本機測試包執行同一核心，呼叫遊戲 LearningAbility 補齊 583 項紀錄。
+Applied the same core using a local test harness after the user confirmed an idle field-map state; 583 entries learned through the game's LearningAbility method.
+全部 12 名角色各 54 種魔法學滿；RESULT true nil。
+All 12 roles verified at 54 mastered spells each; RESULT true nil.
+Gogo／Umaro 的技能與指令不變；其他角色技能、指令、能力、等級、EXP、HP/MP、裝備魔石、一般與重要道具、Gil、擊破數、圖鑑、事件與成就均核對不變。
+Gogo/Umaro skills and commands preserved; unrelated skills, commands, stats, levels, EXP, HP/MP, equipped magicite, normal/key inventory, Gil, kill counts, bestiary, events and achievements verified unchanged.
+
+備份／Backups
+套用前已備份 10 個完整存檔檔案，另有狀態快照；皆保留本機，不公開。
+Backed up 10 save files before application and wrote a separate state snapshot. Private backups remain local.
+
+限制／Limits
+使用者確認：「魔法已齊全，可以選用，遊戲正常」。正式勾選包裝／預設備份目錄未另行執行實測；存檔重讀、完整重啟、其他版本與帳號未測。
+The user confirmed that spells are complete and selectable and gameplay is normal. The standalone checkbox wrapper/default backup directory were not separately live-tested. Save reloads, full restarts and other builds/accounts are untested.
